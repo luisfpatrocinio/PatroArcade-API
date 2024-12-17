@@ -5,7 +5,7 @@ import { getPlayerSaveData, getSaveDatas } from "../controllers/saveController";
 const router = Router();
 
 // Rota para obter dados de um jogador específico
-router.get("/:playerId/:gameId", getPlayerSaveData);
+router.get("/:playerId/save/:gameId", getPlayerSaveData);
 
 // Rota para obter todos os dados salvos
 router.get("/", getSaveDatas);
