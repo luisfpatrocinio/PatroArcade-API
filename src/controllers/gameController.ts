@@ -17,3 +17,8 @@ export function getGameDatabyGameId(req: Request, res: Response) {
     res.status(404).json({ type: "error", content: "Game not found" });
   }
 }
+
+export function getAllGamesData(req: Request, res: Response) {
+  const games = gameDatabase;
+  res.json({ type: "gamesData", content: games });
+}

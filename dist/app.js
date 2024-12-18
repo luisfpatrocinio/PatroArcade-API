@@ -25,6 +25,7 @@ const userService_1 = require("./services/userService");
 const clientService_1 = require("./services/clientService");
 const gameRoutes_1 = require("./routes/gameRoutes");
 const saveRoutes_1 = require("./routes/saveRoutes");
+const gamesRoutes_1 = require("./routes/gamesRoutes");
 // Criar a instância do Express
 const app = (0, express_1.default)();
 // Middleware de limitação de requisições
@@ -40,6 +41,7 @@ app.use("/arcadeLogin", arcadeLoginRoutes_1.arcadeLoginRoutes);
 app.use("/logout", logoutRoutes_1.logoutRoutes);
 app.use("/latestNews", newsRoutes_1.newsRoutes);
 app.use("/game", gameRoutes_1.gameRoutes);
+app.use("/games", gamesRoutes_1.gamesRoutes);
 app.use("/save", saveRoutes_1.saveRoutes);
 app.use("/debug", debugRoutes_1.debugRoutes);
 // TODO: Configurar sessões

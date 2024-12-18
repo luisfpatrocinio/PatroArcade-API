@@ -1,9 +1,8 @@
 import { Router } from "express";
-import { getLeaderBoard } from "../controllers/playerController";
 import {
   getGameDatabyGameId,
   getGamesData,
-} from "../controllers/gamesController";
+} from "../controllers/gameController";
 
 // Criar uma instância do Router
 const router = Router();
