@@ -2,6 +2,8 @@ import app, { disconnectPlayer, getConnectedPlayerId } from "./app";
 import { WebSocketServer } from "ws";
 import { v4 as uuidv4 } from "uuid";
 import http from "http";
+import dotenv from "dotenv";
+dotenv.config();
 
 const PORT = process.env.PORT || 3001;
 

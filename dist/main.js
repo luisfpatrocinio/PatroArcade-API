@@ -7,6 +7,8 @@ exports.wss = exports.clients = void 0;
 const app_1 = __importDefault(require("./app"));
 const ws_1 = require("ws");
 const http_1 = __importDefault(require("http"));
+const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
 const PORT = process.env.PORT || 3001;
 // Mapa de clientes conectados ao WebSocket (fliperamas)
 exports.clients = new Map();

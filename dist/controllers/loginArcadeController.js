@@ -1,9 +1,15 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.generateLoginPage = exports.tryToLoginArcade = void 0;
 const userService_1 = require("../services/userService");
 const arcadeService_1 = require("../services/arcadeService");
 const loginExceptions_1 = require("../exceptions/loginExceptions");
+const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
+const pageUrl = process.env.PAGEURL || "http://localhost:5999";
 function tryToLoginArcade(req, res) {
     // Analisa credenciais recebidas.
     const clientTempId = req.params.clientTempId;
@@ -46,51 +52,7 @@ function tryToLoginArcade(req, res) {
 exports.tryToLoginArcade = tryToLoginArcade;
 function generateLoginPage(req, res) {
     const clientId = parseInt(req.params.clientId);
-    console.log(`Gerando página de login para o cliente ${clientId}.`);
-    res.send("Serviço descontinuado.");
-    return;
-    res.send(`
-            <!DOCTYPE html>
-            <html>
-                    <head>
-                            <title>Login</title>
-                    </head>
-                    <body>
-                            <h2>Login</h2>
-                            <form id="loginForm" action="/login/${clientId}" method="post">
-                                    <label for="username">Username:</label><br>
-                                    <input type="text" id="username" name="username"><br>
-                                    <label for="password">Password:</label><br>
-                                    <input type="password" id="password" name="password"><br><br>
-                                    <input type="submit" value="Submit">
-                            </form>
-                            <script>
-                                    document.getElementById('loginForm').addEventListener('submit', function(event) {
-                                            event.preventDefault();
-                                            const username = document.getElementById('username').value;
-                                            const password = document.getElementById('password').value;
-                                            fetch('/login/${clientId}', {
-                                                    method: 'POST',
-                                                    headers: {
-                                                            'Content-Type': 'application/json'
-                                                    },
-                                                    body: JSON.stringify({ username, password })
-                                            })
-                                            .then(response => response.json())
-                                            .then(data => {
-                                                    if (data.type === 'loginSuccess') {
-                                                            console.log('Login successful!');
-                                                    } else {
-                                                            console.log('Login failed: ' + data.content);
-                                                    }
-                                            })
-                                            .catch(error => {
-                                                    console.error('Error:', error);
-                                            });
-                                    });
-                            </script>
-                    </body>
-            </html>
-    `);
+    console.log(`Redirecionando para ${pageUrl}/login/${clientId}`);
+    res.redirect(`${pageUrl}/login/${clientId}`);
 }
 exports.generateLoginPage = generateLoginPage;

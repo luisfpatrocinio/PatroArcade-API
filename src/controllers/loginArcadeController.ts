@@ -6,6 +6,10 @@ import {
 import { updateArcadeIdentifier } from "../services/arcadeService";
 import { UserIsNotAdminException } from "../exceptions/loginExceptions";
 import { AdminUser } from "../models/usersDatabase";
+import dotenv from "dotenv";
+dotenv.config();
+
+const pageUrl = process.env.PAGEURL || "http://localhost:5999";
 
 export function tryToLoginArcade(req: Request, res: Response) {
   // Analisa credenciais recebidas.
@@ -52,50 +56,6 @@ export function tryToLoginArcade(req: Request, res: Response) {
 
 export function generateLoginPage(req: Request, res: Response) {
   const clientId = parseInt(req.params.clientId);
-  console.log(`Gerando página de login para o cliente ${clientId}.`);
-  res.send("Serviço descontinuado.");
-  return;
-  res.send(`
-            <!DOCTYPE html>
-            <html>
-                    <head>
-                            <title>Login</title>
-                    </head>
-                    <body>
-                            <h2>Login</h2>
-                            <form id="loginForm" action="/login/${clientId}" method="post">
-                                    <label for="username">Username:</label><br>
-                                    <input type="text" id="username" name="username"><br>
-                                    <label for="password">Password:</label><br>
-                                    <input type="password" id="password" name="password"><br><br>
-                                    <input type="submit" value="Submit">
-                            </form>
-                            <script>
-                                    document.getElementById('loginForm').addEventListener('submit', function(event) {
-                                            event.preventDefault();
-                                            const username = document.getElementById('username').value;
-                                            const password = document.getElementById('password').value;
-                                            fetch('/login/${clientId}', {
-                                                    method: 'POST',
-                                                    headers: {
-                                                            'Content-Type': 'application/json'
-                                                    },
-                                                    body: JSON.stringify({ username, password })
-                                            })
-                                            .then(response => response.json())
-                                            .then(data => {
-                                                    if (data.type === 'loginSuccess') {
-                                                            console.log('Login successful!');
-                                                    } else {
-                                                            console.log('Login failed: ' + data.content);
-                                                    }
-                                            })
-                                            .catch(error => {
-                                                    console.error('Error:', error);
-                                            });
-                                    });
-                            </script>
-                    </body>
-            </html>
-    `);
+  console.log(`Redirecionando para ${pageUrl}/login/${clientId}`);
+  res.redirect(`${pageUrl}/login/${clientId}`);
 }

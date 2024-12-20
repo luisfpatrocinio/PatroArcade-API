@@ -11,3 +11,7 @@ exports.loginRoutes = router;
 router.post("/:clientId", loginController_1.tryToLogin);
 // Página de Login
 router.get("/:clientId", loginArcadeController_1.generateLoginPage);
+// Criar rota para deletar um jogador
+router.delete("/:clientId", (req, res) => {
+    res.send("Deletando um jogador");
+});
