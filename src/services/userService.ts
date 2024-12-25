@@ -22,6 +22,28 @@ export function getUserDataByUserName(username: string): User {
   return user;
 }
 
+export function getUserDataByEmail(email: string): User {
+  const user = usersDatabase.find((u) => u.email === email);
+  if (!user) {
+    throw new Error(`User with email ${email} not found`);
+  }
+  return user;
+}
+
+export function addUserToDatabase(user: Partial<User>): User {
+  console.log("Adicionando usuário ao banco de dados...");
+  const newUser: User = {
+    id: usersDatabase.length + 1, // ID é incremental e começa no 1
+    username: user.username!,
+    password: user.password!,
+    email: user.email!,
+    role: "player",
+  };
+  usersDatabase.push(newUser);
+  console.log(`Usuário ${newUser.username} adicionado com sucesso!`);
+  return newUser;
+}
+
 export function isAlreadyConnected(userId: number): boolean {
   let _connected = false;
   // Percorre todos os clientes

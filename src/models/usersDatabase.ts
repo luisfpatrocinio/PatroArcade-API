@@ -1,6 +1,5 @@
 export interface User {
   id: number;
-  name: string;
   username: string;
   email: string;
   password: string;
@@ -15,7 +14,6 @@ export interface AdminUser extends User {
 export const usersDatabase: (User | AdminUser)[] = [
   {
     id: 1,
-    name: "Luis F Patrocinio",
     username: "patrocinio",
     email: "patrocinioluisf@gmail.com",
     password: "123456",
@@ -24,7 +22,6 @@ export const usersDatabase: (User | AdminUser)[] = [
   },
   {
     id: 2,
-    name: "Joaquim",
     username: "joaquim",
     email: "joaquim@gmail.com",
     password: "123456",

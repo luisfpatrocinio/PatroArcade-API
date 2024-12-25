@@ -1,4 +1,5 @@
 import { clients } from "../main";
+import { arcadeDatabase, ArcadeInfo } from "../models/arcadeInfo";
 
 export function updateArcadeIdentifier(id: number, clientTempId: string): void {
   const allClients = Array.from(clients.values());
@@ -15,4 +16,12 @@ export function updateArcadeIdentifier(id: number, clientTempId: string): void {
       })
     );
   }
+}
+
+export function getArcadeInfoById(arcadeId: number): ArcadeInfo {
+  const arcade = arcadeDatabase.find((arcade) => arcade.id === arcadeId);
+  if (!arcade) {
+    throw new Error("Arcade not found");
+  }
+  return arcade;
 }

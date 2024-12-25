@@ -27,6 +27,8 @@ import { clientExists } from "./services/clientService";
 import { gameRoutes } from "./routes/gameRoutes";
 import { saveRoutes } from "./routes/saveRoutes";
 import { gamesRoutes } from "./routes/gamesRoutes";
+import { registerRoutes } from "./routes/registerRoutes";
+import { arcadeRoutes } from "./routes/arcadeRoutes";
 
 // Criar a instância do Express
 const app: Application = express();
@@ -47,6 +49,8 @@ app.use("/latestNews", newsRoutes);
 app.use("/game", gameRoutes);
 app.use("/games", gamesRoutes);
 app.use("/save", saveRoutes);
+app.use("/register", registerRoutes);
+app.use("/arcade", arcadeRoutes);
 
 app.use("/debug", debugRoutes);
 

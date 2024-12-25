@@ -18,10 +18,12 @@ exports.tryToLogin = [
         const username = req.body.username;
         const password = req.body.password;
         const clientId = parseInt(req.params.clientId);
+        console.log("Printando body:");
+        console.log(req.body);
         console.log(`[LOGIN ATTEMPT]: ID: ${clientId} - ${username}.`);
         // Verificar se os dados de login são válidos
         if (!username || !password || isNaN(clientId)) {
-            console.log();
+            console.log("[LoginController] [tryToLogin] Dados de login inválidos.");
             return res.status(400).json({
                 type: "loginFailed",
                 content: "Dados de login inválidos.",

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.isClientFull = exports.isAlreadyConnected = exports.getUserDataByUserName = exports.checkCredentials = void 0;
+exports.isClientFull = exports.isAlreadyConnected = exports.addUserToDatabase = exports.getUserDataByEmail = exports.getUserDataByUserName = exports.checkCredentials = void 0;
 const loginExceptions_1 = require("../exceptions/loginExceptions");
 const main_1 = require("../main");
 const usersDatabase_1 = require("../models/usersDatabase");
@@ -19,6 +19,28 @@ function getUserDataByUserName(username) {
     return user;
 }
 exports.getUserDataByUserName = getUserDataByUserName;
+function getUserDataByEmail(email) {
+    const user = usersDatabase_1.usersDatabase.find((u) => u.email === email);
+    if (!user) {
+        throw new Error(`User with email ${email} not found`);
+    }
+    return user;
+}
+exports.getUserDataByEmail = getUserDataByEmail;
+function addUserToDatabase(user) {
+    console.log("Adicionando usuário ao banco de dados...");
+    const newUser = {
+        id: usersDatabase_1.usersDatabase.length + 1,
+        username: user.username,
+        password: user.password,
+        email: user.email,
+        role: "player",
+    };
+    usersDatabase_1.usersDatabase.push(newUser);
+    console.log(`Usuário ${newUser.username} adicionado com sucesso!`);
+    return newUser;
+}
+exports.addUserToDatabase = addUserToDatabase;
 function isAlreadyConnected(userId) {
     let _connected = false;
     // Percorre todos os clientes

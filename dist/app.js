@@ -26,6 +26,8 @@ const clientService_1 = require("./services/clientService");
 const gameRoutes_1 = require("./routes/gameRoutes");
 const saveRoutes_1 = require("./routes/saveRoutes");
 const gamesRoutes_1 = require("./routes/gamesRoutes");
+const registerRoutes_1 = require("./routes/registerRoutes");
+const arcadeRoutes_1 = require("./routes/arcadeRoutes");
 // Criar a instância do Express
 const app = (0, express_1.default)();
 // Middleware de limitação de requisições
@@ -43,6 +45,8 @@ app.use("/latestNews", newsRoutes_1.newsRoutes);
 app.use("/game", gameRoutes_1.gameRoutes);
 app.use("/games", gamesRoutes_1.gamesRoutes);
 app.use("/save", saveRoutes_1.saveRoutes);
+app.use("/register", registerRoutes_1.registerRoutes);
+app.use("/arcade", arcadeRoutes_1.arcadeRoutes);
 app.use("/debug", debugRoutes_1.debugRoutes);
 // TODO: Configurar sessões
 // Função para conectar o jogador num fliperama específico
