@@ -4,8 +4,9 @@ import {
   getUserDataByUserName,
 } from "../services/userService";
 import AppError from "../exceptions/appError";
+import { createPlayerForUser } from "../services/playerService";
 
-export function registerUser(req: Request, res: Response) {
+export async function registerUser(req: Request, res: Response) {
   // Vai chegar um json com os dados do usuário
   console.log("Registrando usuário...");
   console.log(req.body);
@@ -48,10 +49,10 @@ export function registerUser(req: Request, res: Response) {
     };
 
     // Adicionar o usuário ao banco de dados
-    addUserToDatabase(newUser);
+    const newUserAdded = addUserToDatabase(newUser);
 
-    // Cria um player para esse usuário
-    // createPlayer(newUser.username
+    // Criar um jogador para o usuário
+    createPlayerForUser(newUserAdded);
 
     console.log(`Usuário ${username} registrado com sucesso.`);
 

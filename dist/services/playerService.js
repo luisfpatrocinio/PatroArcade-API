@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.obtainPlayerSaves = exports.getPlayerByUserId = exports.addPlayerToDatabase = exports.generateNewPlayer = exports.getLeaderboardData = exports.getPlayerByName = void 0;
+exports.createPlayerForUser = exports.obtainPlayerSaves = exports.getPlayerByUserId = exports.addPlayerToDatabase = exports.generateNewPlayer = exports.getLeaderboardData = exports.getPlayerByName = void 0;
 // Serviços para Manipulação de Dados
 const appError_1 = require("../exceptions/appError");
 const playerDatabase_1 = require("../models/playerDatabase");
@@ -22,8 +22,8 @@ const getLeaderboardData = () => {
     }));
 };
 exports.getLeaderboardData = getLeaderboardData;
-// Gera um novo objeto de jogador
-function generateNewPlayer(playerName, userId) {
+// Gera um novo objeto de jogador, sem ID.
+function generateNewPlayer(playerName) {
     const _newPlayer = {
         name: playerName,
         level: 1,
@@ -33,15 +33,15 @@ function generateNewPlayer(playerName, userId) {
         coins: 0,
         avatarIndex: 1,
         colorIndex: 1,
-        userId: userId,
     };
     return _newPlayer;
 }
 exports.generateNewPlayer = generateNewPlayer;
-// vou fazer silencio pq o rogerio eh chato com a gente
 // Adiciona um jogador ao banco de dados
 function addPlayerToDatabase(playerData) {
-    playerDatabase_1.playerDatabase.push(playerData);
+    playerData.id = playerDatabase_1.playerDatabase.length + 1;
+    const completePlayerData = playerData;
+    playerDatabase_1.playerDatabase.push(completePlayerData);
 }
 exports.addPlayerToDatabase = addPlayerToDatabase;
 function getPlayerByUserId(userId) {
@@ -62,3 +62,10 @@ function obtainPlayerSaves(playerId) {
     return saves;
 }
 exports.obtainPlayerSaves = obtainPlayerSaves;
+// Através das informações de um usuário, cria um novo Player.
+function createPlayerForUser(user) {
+    const newPlayer = generateNewPlayer(user.username);
+    newPlayer.userId = user.id;
+    addPlayerToDatabase(newPlayer);
+}
+exports.createPlayerForUser = createPlayerForUser;

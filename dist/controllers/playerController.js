@@ -36,7 +36,8 @@ const getLeaderBoard = (req, res) => {
     });
 };
 exports.getLeaderBoard = getLeaderBoard;
-// Criar um novo jogador
+// Criar um novo jogador. Função chamada na rota POST /players/create
+// Essa rota deve receber um JSON com o nome do jogador
 const createNewPlayer = (req, res) => {
     const playerName = req.body.name;
     console.log(playerName);
@@ -46,21 +47,20 @@ const createNewPlayer = (req, res) => {
         // Caso o jogador já exista, retornar um erro
         console.log("Jogador já existe");
         res.status(400).json({
-            type: "error",
+            type: "createNewPlayerError",
             content: `Player ${playerName} already exists`,
         });
+        return;
     }
-    else {
-        // Caso o jogador não exista, criar um novo jogador.
-        console.log("Criando como novo jogador");
-        const newPlayer = (0, playerService_1.generateNewPlayer)(playerName, 1);
-        // Adicionar o novo jogador ao banco de dados
-        (0, playerService_1.addPlayerToDatabase)(newPlayer);
-        res.json({
-            type: "newPlayerData",
-            content: newPlayer,
-        });
-    }
+    // Caso o jogador não exista, criar um novo jogador.
+    console.log("Criando como novo jogador");
+    const newPlayer = (0, playerService_1.generateNewPlayer)(playerName);
+    // Adicionar o novo jogador ao banco de dados
+    (0, playerService_1.addPlayerToDatabase)(newPlayer);
+    res.json({
+        type: "newPlayerData",
+        content: newPlayer,
+    });
 };
 exports.createNewPlayer = createNewPlayer;
 // Obter todos os saves de um jogador

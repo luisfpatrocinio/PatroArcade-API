@@ -27,4 +27,26 @@ export const usersDatabase: (User | AdminUser)[] = [
     password: "123456",
     role: "player",
   },
+  {
+    id: 3,
+    username: "maria",
+    email: "maria@gmail.com",
+    password: "123456",
+    role: "player",
+  },
+  {
+    id: 4,
+    username: "carlos",
+    email: "carlos@gmail.com",
+    password: "123456",
+    role: "admin",
+    arcades: [55, 66],
+  },
+  {
+    id: 5,
+    username: "ana",
+    email: "ana@gmail.com",
+    password: "123456",
+    role: "player",
+  },
 ];

@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import {
   checkCredentials,
   getUserDataByUserName,
+  userHasPlayer,
 } from "../services/userService";
 import { connectPlayer } from "../app";
 import { getPlayerByUserId } from "../services/playerService";
@@ -22,9 +23,6 @@ export const tryToLogin = [
     const password = req.body.password;
     const clientId = parseInt(req.params.clientId);
 
-    console.log("Printando body:");
-    console.log(req.body);
-
     console.log(`[LOGIN ATTEMPT]: ID: ${clientId} - ${username}.`);
 
     // Verificar se os dados de login são válidos
@@ -43,15 +41,22 @@ export const tryToLogin = [
         const userId = userData.id;
         connectPlayer(userId, clientId);
         const playerData = getPlayerByUserId(userId);
-        res.status(200).json({
-          type: "loginSuccess",
-          content: playerData,
-        });
         sendWebSocketMessage(clientId, "playerJoined", playerData);
         addPlayerToClient(clientId, userId);
         console.log(
           `[LoginController] [tryToLogin] Player ${username} conectado com sucesso no cliente ${clientId}.`
         );
+
+        if (!userHasPlayer(userId)) {
+            // Esse usuário é novo, e ainda não tem um jogador associado
+            // Retornar um erro específico para essa situação.
+            
+        }
+
+        res.status(200).json({
+          type: "loginSuccess",
+          content: playerData,
+        });
       } else {
         res.status(401).json({
           type: "loginFailed",

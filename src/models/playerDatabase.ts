@@ -1,5 +1,6 @@
 import { PlayerGameData } from "./saveData";
 export interface Player {
+  id: number;
   name: string;
   level: number;
   expPoints: number;
@@ -13,6 +14,7 @@ export interface Player {
 
 export const playerDatabase: Player[] = [
   {
+    id: 1,
     name: "Patrocinio",
     level: 1,
     expPoints: 69,
@@ -24,6 +26,7 @@ export const playerDatabase: Player[] = [
     userId: 1,
   },
   {
+    id: 2,
     name: "Goku",
     level: 2,
     expPoints: 150,
@@ -35,6 +38,7 @@ export const playerDatabase: Player[] = [
     userId: 2,
   },
   {
+    id: 3,
     name: "Luffy",
     level: 3,
     expPoints: 300,
@@ -46,6 +50,7 @@ export const playerDatabase: Player[] = [
     userId: 3,
   },
   {
+    id: 4,
     name: "Ichigo Kurosaki",
     level: 4,
     expPoints: 450,
@@ -57,6 +62,7 @@ export const playerDatabase: Player[] = [
     userId: 4,
   },
   {
+    id: 5,
     name: "Saitama",
     level: 5,
     expPoints: 600,
@@ -66,27 +72,5 @@ export const playerDatabase: Player[] = [
     avatarIndex: 5,
     colorIndex: 5,
     userId: 5,
-  },
-  {
-    name: "Edward Elric",
-    level: 6,
-    expPoints: 750,
-    totalScore: 1500,
-    bio: "O Alquimista de Aço",
-    coins: 250,
-    avatarIndex: 6,
-    colorIndex: 6,
-    userId: 6,
-  },
-  {
-    name: "Naruto Uzumaki",
-    level: 1,
-    expPoints: 0,
-    totalScore: 0,
-    bio: "O ninja mais determinado de Konoha",
-    coins: 0,
-    avatarIndex: 1,
-    colorIndex: 1,
-    userId: 7,
   },
 ];

@@ -5,6 +5,7 @@ import {
 } from "../exceptions/appError";
 import { Player, playerDatabase } from "../models/playerDatabase";
 import { PlayerGameData, saveDatabase } from "../models/saveData";
+import { User } from "../models/userModel";
 
 // Retornar os dados de um jogaor específico
 export const getPlayerByName = (name: string) => {
@@ -23,9 +24,9 @@ export const getLeaderboardData = () => {
     }));
 };
 
-// Gera um novo objeto de jogador
-export function generateNewPlayer(playerName: string, userId: number): Player {
-  const _newPlayer: Player = {
+// Gera um novo objeto de jogador, sem ID.
+export function generateNewPlayer(playerName: string): Partial<Player> {
+  const _newPlayer: Partial<Player> = {
     name: playerName,
     level: 1,
     expPoints: 0,
@@ -34,16 +35,15 @@ export function generateNewPlayer(playerName: string, userId: number): Player {
     coins: 0,
     avatarIndex: 1,
     colorIndex: 1,
-    userId: userId,
   };
   return _newPlayer;
 }
 
-// vou fazer silencio pq o rogerio eh chato com a gente
-
 // Adiciona um jogador ao banco de dados
-export function addPlayerToDatabase(playerData: Player): void {
-  playerDatabase.push(playerData);
+export function addPlayerToDatabase(playerData: Partial<Player>): void {
+  playerData.id = playerDatabase.length + 1;
+  const completePlayerData: Player = playerData as Player;
+  playerDatabase.push(completePlayerData);
 }
 
 export function getPlayerByUserId(userId: number): Player {
@@ -63,4 +63,11 @@ export function obtainPlayerSaves(playerId: number): Array<PlayerGameData> {
 
   const saves = saveDatabase.filter((save) => save.playerId === playerId);
   return saves;
+}
+
+// Através das informações de um usuário, cria um novo Player.
+export function createPlayerForUser(user: Partial<User>) {
+  const newPlayer = generateNewPlayer(user.username!);
+  newPlayer.userId = user.id;
+  addPlayerToDatabase(newPlayer);
 }

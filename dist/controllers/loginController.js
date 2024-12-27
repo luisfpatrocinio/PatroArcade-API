@@ -18,8 +18,6 @@ exports.tryToLogin = [
         const username = req.body.username;
         const password = req.body.password;
         const clientId = parseInt(req.params.clientId);
-        console.log("Printando body:");
-        console.log(req.body);
         console.log(`[LOGIN ATTEMPT]: ID: ${clientId} - ${username}.`);
         // Verificar se os dados de login são válidos
         if (!username || !password || isNaN(clientId)) {
@@ -36,13 +34,17 @@ exports.tryToLogin = [
                 const userId = userData.id;
                 (0, app_1.connectPlayer)(userId, clientId);
                 const playerData = (0, playerService_1.getPlayerByUserId)(userId);
+                (0, clientService_1.sendWebSocketMessage)(clientId, "playerJoined", playerData);
+                (0, clientService_1.addPlayerToClient)(clientId, userId);
+                console.log(`[LoginController] [tryToLogin] Player ${username} conectado com sucesso no cliente ${clientId}.`);
+                if (!(0, userService_1.userHasPlayer)(userId)) {
+                    // Esse usuário é novo, e ainda não tem um jogador associado
+                    // Retornar um erro específico para essa situação.
+                }
                 res.status(200).json({
                     type: "loginSuccess",
                     content: playerData,
                 });
-                (0, clientService_1.sendWebSocketMessage)(clientId, "playerJoined", playerData);
-                (0, clientService_1.addPlayerToClient)(clientId, userId);
-                console.log(`[LoginController] [tryToLogin] Player ${username} conectado com sucesso no cliente ${clientId}.`);
             }
             else {
                 res.status(401).json({

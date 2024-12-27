@@ -3,7 +3,8 @@ import {
   ClientNotFoundException,
 } from "../exceptions/loginExceptions";
 import { clients } from "../main";
-import { User, usersDatabase } from "../models/usersDatabase";
+import { playerDatabase } from "../models/playerDatabase";
+import { User, usersDatabase } from "../models/userModel";
 import { getClientById } from "./clientService";
 
 // Função que verifica se as credenciais são válidas
@@ -64,4 +65,11 @@ export function isClientFull(clientId: number): boolean {
   }
 
   return _client.players.length >= 2;
+}
+
+export function userHasPlayer(userId: number): boolean {
+  // Percorre todos os players, conferindo se há um player com o mesmo userId
+  // Database de players:
+  const players = playerDatabase;
+  return players.some((player) => player.userId === userId);
 }

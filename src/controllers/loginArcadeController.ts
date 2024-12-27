@@ -5,7 +5,7 @@ import {
 } from "../services/userService";
 import { updateArcadeIdentifier } from "../services/arcadeService";
 import { UserIsNotAdminException } from "../exceptions/loginExceptions";
-import { AdminUser } from "../models/usersDatabase";
+import { AdminUser } from "../models/userModel";
 import dotenv from "dotenv";
 dotenv.config();
 
