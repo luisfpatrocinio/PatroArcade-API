@@ -65,8 +65,7 @@ function isClientFull(clientId) {
 exports.isClientFull = isClientFull;
 function userHasPlayer(userId) {
     // Percorre todos os players, conferindo se há um player com o mesmo userId
-    // Database de players:
-    const players = playerDatabase_1.playerDatabase;
+    const players = playerDatabase_1.playerDatabase; // Database de players
     return players.some((player) => player.userId === userId);
 }
 exports.userHasPlayer = userHasPlayer;

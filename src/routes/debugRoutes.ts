@@ -3,6 +3,7 @@ import { Router } from "express";
 import { clients } from "../main";
 import { usersDatabase } from "../models/userModel";
 import { playerDatabase } from "../models/playerDatabase";
+import { saveDatabase } from "../models/saveData";
 
 function showClients(req: Request, res: Response) {
   console.log("Mostrando clientes conectados.");
@@ -24,6 +25,11 @@ function showPlayers(req: Request, res: Response) {
   return res.status(200).json({ type: "allPlayers", content: playerDatabase });
 }
 
+function showSaveDatas(req: Request, res: Response) {
+  console.log("Obtendo todos os dados salvos.");
+  return res.status(200).json({ type: "allSaves", content: saveDatabase });
+}
+
 // Criar uma instância do Router
 const router = Router();
 
@@ -31,6 +37,7 @@ const router = Router();
 router.get("/clients", showClients);
 router.get("/users", showUsers);
 router.get("/players", showPlayers);
+router.get("/save", showSaveDatas);
 
 // Exportar o router usando um alias
 export { router as debugRoutes };

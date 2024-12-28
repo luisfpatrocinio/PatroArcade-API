@@ -12,11 +12,11 @@ class SaveNotFoundError extends appError_1.default {
     }
 }
 function findSaveData(playerId, gameId) {
-    console.log(`Procurando dados de save para o jogador ${playerId} (Game ID: ${gameId})...`);
+    console.log(`[findSaveData] Procurando dados de save para o jogador ${playerId} (Game ID: ${gameId})...`);
     try {
         const save = saveData_1.saveDatabase.find((save) => save.playerId === playerId && save.gameId === gameId);
         if (save) {
-            console.log("Dados de save encontrados!");
+            console.log("[findSaveData] Dados de save encontrados!");
             return save;
         }
         throw new SaveNotFoundError();

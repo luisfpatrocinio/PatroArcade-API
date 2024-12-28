@@ -69,7 +69,6 @@ export function isClientFull(clientId: number): boolean {
 
 export function userHasPlayer(userId: number): boolean {
   // Percorre todos os players, conferindo se há um player com o mesmo userId
-  // Database de players:
-  const players = playerDatabase;
+  const players = playerDatabase;   // Database de players
   return players.some((player) => player.userId === userId);
 }
