@@ -65,12 +65,23 @@ function manageGameReceivedData(ws: any, data: Map<string, any>) {
 
   switch (type) {
     case "updateClientId":
-      const clientId = content.get("clientId");
-      const client = getThisClient(ws);
+      var clientId = content.get("clientId");
+      var client = getThisClient(ws);
       if (client !== -1) {
         clients.get(client).id = clientId;
       }
       console.log(`[UPDATE CLIENT ID]: ${client} atualizado para ${clientId}.`);
+      break;
+    case "disconnectPlayers":
+      var clientId = content.get("clientId");
+      var client = getThisClient(ws);
+      if (client !== -1) {
+        clients.get(client).players = [];
+      }
+      console.log(
+        `[DISCONNECT PLAYERS]: Jogadores do cliente ${client} desconectados.`
+      );
+
       break;
     default:
       console.log("Tipo de mensagem não reconhecido.");

@@ -3,11 +3,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.logout = void 0;
+exports.disconnectArcadePlayersRequest = exports.logout = void 0;
 const app_1 = require("../app");
 const main_1 = require("../main");
 const userService_1 = require("../services/userService");
 const appError_1 = __importDefault(require("../exceptions/appError"));
+const arcadeService_1 = require("../services/arcadeService");
 function logout(req, res) {
     const { username } = req.body;
     try {
@@ -40,3 +41,14 @@ function logout(req, res) {
     console.log(`[LOGOUT] Jogador ${username} desconectado.`);
 }
 exports.logout = logout;
+function disconnectArcadePlayersRequest(req, res) {
+    const { arcadeId } = req.body;
+    // Desconectar jogadores do fliperama
+    (0, arcadeService_1.disconnectArcadePlayers)(parseInt(arcadeId));
+    res.status(200).json({
+        type: "disconnectArcadePlayersSuccess",
+        content: `[DISCONNECT] Jogadores do fliperama ${arcadeId} desconectados.`,
+    });
+    console.log(`[DISCONNECT] Jogadores do fliperama ${arcadeId} desconectados.`);
+}
+exports.disconnectArcadePlayersRequest = disconnectArcadePlayersRequest;

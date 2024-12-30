@@ -71,3 +71,34 @@ export function createPlayerForUser(user: Partial<User>) {
   newPlayer.userId = user.id;
   addPlayerToDatabase(newPlayer);
 }
+
+// Essa função consulta todos os saves pertecentes a esse usuário, e ajusta o valor de totalScore com base nos scores de cada jogo.
+export const updatePlayerTotalScore = (playerId: number): Player => {
+  console.log("[updatePlayerScore] acionado");
+
+  try {
+    const player = getPlayerByUserId(playerId);
+    if (!player) {
+      throw new PlayerNotFoundError();
+    }
+
+    const saves = obtainPlayerSaves(playerId);
+    let totalScore = 0;
+
+    saves.forEach((save) => {
+      // conferir se há totalScore no save:
+      if (save.data.totalScore) {
+        totalScore += save.data.totalScore;
+      }
+    });
+
+    player.totalScore = totalScore;
+    return player;
+  } catch (err) {
+    console.error(
+      "[updatePlayerScore] Erro ao atualizar score do jogador: ",
+      (err as Error).message
+    );
+    throw err;
+  }
+};

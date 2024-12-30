@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createPlayerForUser = exports.obtainPlayerSaves = exports.getPlayerByUserId = exports.addPlayerToDatabase = exports.generateNewPlayer = exports.getLeaderboardData = exports.getPlayerByName = void 0;
+exports.updatePlayerTotalScore = exports.createPlayerForUser = exports.obtainPlayerSaves = exports.getPlayerByUserId = exports.addPlayerToDatabase = exports.generateNewPlayer = exports.getLeaderboardData = exports.getPlayerByName = void 0;
 // Serviços para Manipulação de Dados
 const appError_1 = require("../exceptions/appError");
 const playerDatabase_1 = require("../models/playerDatabase");
@@ -69,3 +69,28 @@ function createPlayerForUser(user) {
     addPlayerToDatabase(newPlayer);
 }
 exports.createPlayerForUser = createPlayerForUser;
+// Essa função consulta todos os saves pertecentes a esse usuário, e ajusta o valor de totalScore com base nos scores de cada jogo.
+const updatePlayerTotalScore = (playerId) => {
+    console.log("[updatePlayerScore] acionado");
+    try {
+        const player = getPlayerByUserId(playerId);
+        if (!player) {
+            throw new appError_1.PlayerNotFoundError();
+        }
+        const saves = obtainPlayerSaves(playerId);
+        let totalScore = 0;
+        saves.forEach((save) => {
+            // conferir se há totalScore no save:
+            if (save.data.totalScore) {
+                totalScore += save.data.totalScore;
+            }
+        });
+        player.totalScore = totalScore;
+        return player;
+    }
+    catch (err) {
+        console.error("[updatePlayerScore] Erro ao atualizar score do jogador: ", err.message);
+        throw err;
+    }
+};
+exports.updatePlayerTotalScore = updatePlayerTotalScore;

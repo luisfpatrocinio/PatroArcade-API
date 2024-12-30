@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { findSaveData } from "../services/saveService";
 import { saveDatabase } from "../models/saveData";
+import { updatePlayerTotalScore } from "../services/playerService";
 
 export function getPlayerSaveData(req: Request, res: Response) {
   console.log("[getPlayerSaveData] Solicitando dados salvos...");
@@ -31,7 +32,7 @@ export function getSaveDatas(req: Request, res: Response) {
 }
 
 // Função que recebe dados do jogador do jogo e atualiza no banco de dados.
-export function savePlayerData(req: Request, res: Response) {
+export async function savePlayerData(req: Request, res: Response) {
   console.log("[savePlayerData] Recebendo save do jogador...");
 
   const playerId = Number(req.params.playerId);
@@ -53,6 +54,7 @@ export function savePlayerData(req: Request, res: Response) {
         lastPlayed: new Date(),
       };
       console.log("[savePlayerData] Dados de save atualizados com sucesso.");
+      updatePlayerTotalScore(playerId);
       return res.status(200).json({
         type: "playerSaveUpdated",
         content: "Dados de save atualizados com sucesso.",

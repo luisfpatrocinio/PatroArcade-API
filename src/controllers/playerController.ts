@@ -59,7 +59,7 @@ export const createNewPlayer = (req: Request, res: Response) => {
     });
     return;
   }
-  
+
   // Caso o jogador não exista, criar um novo jogador.
   console.log("Criando como novo jogador");
 

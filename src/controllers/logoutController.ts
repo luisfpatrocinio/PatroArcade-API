@@ -3,6 +3,7 @@ import { disconnectPlayer } from "../app";
 import { wss } from "../main";
 import { getUserDataByUserName } from "../services/userService";
 import AppError from "../exceptions/appError";
+import { disconnectArcadePlayers } from "../services/arcadeService";
 
 export function logout(req: Request, res: Response) {
   const { username } = req.body;
@@ -39,4 +40,18 @@ export function logout(req: Request, res: Response) {
   });
 
   console.log(`[LOGOUT] Jogador ${username} desconectado.`);
+}
+
+export function disconnectArcadePlayersRequest(req: Request, res: Response) {
+  const { arcadeId } = req.body;
+
+  // Desconectar jogadores do fliperama
+  disconnectArcadePlayers(parseInt(arcadeId));
+
+  res.status(200).json({
+    type: "disconnectArcadePlayersSuccess",
+    content: `[DISCONNECT] Jogadores do fliperama ${arcadeId} desconectados.`,
+  });
+
+  console.log(`[DISCONNECT] Jogadores do fliperama ${arcadeId} desconectados.`);
 }

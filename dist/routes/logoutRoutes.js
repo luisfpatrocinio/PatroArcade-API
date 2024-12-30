@@ -8,3 +8,4 @@ const router = (0, express_1.Router)();
 exports.logoutRoutes = router;
 // Rota para obter dados de um jogador específico
 router.post("/", logoutController_1.logout);
+router.post("/arcade/:arcadeId", logoutController_1.disconnectArcadePlayersRequest);

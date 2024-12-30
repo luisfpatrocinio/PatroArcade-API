@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getArcadeInfoById = exports.updateArcadeIdentifier = void 0;
+exports.disconnectArcadePlayers = exports.getArcadeInfoById = exports.updateArcadeIdentifier = void 0;
+const app_1 = require("../app");
 const main_1 = require("../main");
 const arcadeInfo_1 = require("../models/arcadeInfo");
 function updateArcadeIdentifier(id, clientTempId) {
@@ -25,3 +26,15 @@ function getArcadeInfoById(arcadeId) {
     return arcade;
 }
 exports.getArcadeInfoById = getArcadeInfoById;
+function disconnectArcadePlayers(arcadeId) {
+    // Percorrer os clients:
+    for (const client of main_1.clients.values()) {
+        if (client.arcadeId === arcadeId) {
+            // Devemos desconectar os jogadores do array players.
+            for (const player of client.players) {
+                (0, app_1.disconnectPlayer)(player);
+            }
+        }
+    }
+}
+exports.disconnectArcadePlayers = disconnectArcadePlayers;

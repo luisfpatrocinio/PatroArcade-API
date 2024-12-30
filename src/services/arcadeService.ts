@@ -1,3 +1,4 @@
+import { disconnectPlayer } from "../app";
 import { clients } from "../main";
 import { arcadeDatabase, ArcadeInfo } from "../models/arcadeInfo";
 
@@ -24,4 +25,16 @@ export function getArcadeInfoById(arcadeId: number): ArcadeInfo {
     throw new Error("Arcade not found");
   }
   return arcade;
+}
+
+export function disconnectArcadePlayers(arcadeId: number): void {
+  // Percorrer os clients:
+  for (const client of clients.values()) {
+    if (client.arcadeId === arcadeId) {
+      // Devemos desconectar os jogadores do array players.
+      for (const player of client.players) {
+        disconnectPlayer(player);
+      }
+    }
+  }
 }
