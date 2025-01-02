@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updatePlayerTotalScore = exports.createPlayerForUser = exports.obtainPlayerSaves = exports.getPlayerByUserId = exports.addPlayerToDatabase = exports.generateNewPlayer = exports.getLeaderboardData = exports.getPlayerByName = void 0;
+exports.updatePlayerTotalScore = exports.createPlayerForUser = exports.obtainPlayerSaves = exports.getPlayerByUserId = exports.addPlayerToDatabase = exports.generateNewPlayer = exports.getPlayerByName = void 0;
 // Serviços para Manipulação de Dados
 const appError_1 = require("../exceptions/appError");
 const playerDatabase_1 = require("../models/playerDatabase");
@@ -10,18 +10,6 @@ const getPlayerByName = (name) => {
     return playerDatabase_1.playerDatabase.find((player) => player.name === name);
 };
 exports.getPlayerByName = getPlayerByName;
-// Retornar o Leaderboard
-const getLeaderboardData = () => {
-    return playerDatabase_1.playerDatabase
-        .sort((a, b) => b.expPoints - a.expPoints)
-        .map((player) => ({
-        name: player.name,
-        expPoints: player.expPoints,
-        //   totalScore: player.totalScore,
-        //   rankLevel: player.rankLevel,
-    }));
-};
-exports.getLeaderboardData = getLeaderboardData;
 // Gera um novo objeto de jogador, sem ID.
 function generateNewPlayer(playerName) {
     const _newPlayer = {

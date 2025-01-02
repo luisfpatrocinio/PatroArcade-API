@@ -3,39 +3,30 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getAllPlayersData = exports.getPlayerAllSaves = exports.createNewPlayer = exports.getLeaderBoard = exports.getPlayerData = void 0;
+exports.getAllPlayersData = exports.getPlayerAllSaves = exports.createNewPlayer = exports.getPlayerData = void 0;
 const playerService_1 = require("../services/playerService");
 const appError_1 = __importDefault(require("../exceptions/appError"));
 const playerDatabase_1 = require("../models/playerDatabase");
 // Obter dados de um jogador específico
 const getPlayerData = (req, res) => {
-    console.log("getPlayerData acionado");
     const playerId = Number(req.params.playerId);
+    console.log("[getPlayerData] Obtendo dados do jogador: ", playerId);
     const player = (0, playerService_1.getPlayerByUserId)(playerId);
     if (player) {
-        console.log(`Fornecendo dados do jogador: ${player.name}`);
+        console.log(`[getPlayerData] Fornecendo dados do jogador: ${player.name}`);
         res.status(200).json({
             type: "playerData",
             content: player,
         });
         return;
     }
-    console.log(`Jogador não encontrado ID: ${playerId}`);
+    console.log(`[getPlayerData] Erro: Jogador não encontrado.`);
     res.status(404).json({
         type: "playerData",
         content: `Player ID ${playerId} not found`,
     });
 };
 exports.getPlayerData = getPlayerData;
-/** Retrieves the leaderboard data and sends it as a JSON response.*/
-const getLeaderBoard = (req, res) => {
-    const leaderboard = (0, playerService_1.getLeaderboardData)();
-    res.json({
-        type: "leaderboard",
-        content: leaderboard,
-    });
-};
-exports.getLeaderBoard = getLeaderBoard;
 // Criar um novo jogador. Função chamada na rota POST /players/create
 // Essa rota deve receber um JSON com o nome do jogador
 const createNewPlayer = (req, res) => {

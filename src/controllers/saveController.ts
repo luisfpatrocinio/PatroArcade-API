@@ -87,11 +87,14 @@ export async function savePlayerData(req: Request, res: Response) {
 
 // Função que vai receber o texto do Rich Presence e atualizar no banco de dados.
 export function updateRichPresence(req: Request, res: Response) {
-  console.log("[updateRichPresence] Atualizando Rich Presence...");
-
   const playerId = Number(req.params.playerId);
   const gameId = Number(req.params.gameId);
   const richPresenceText = req.body.richPresenceText;
+
+  console.log(
+    `[updateRichPresence] Atualizando Rich Presence para o jogador ${playerId} no jogo ${gameId}: \n`,
+    richPresenceText
+  );
 
   // Atualizar o banco de dados com o novo texto do Rich Presence
   try {

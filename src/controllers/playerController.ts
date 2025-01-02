@@ -1,7 +1,6 @@
 import express, { Request, Response } from "express";
 import {
   getPlayerByName,
-  getLeaderboardData,
   generateNewPlayer,
   addPlayerToDatabase,
   getPlayerByUserId,
@@ -12,12 +11,13 @@ import { playerDatabase } from "../models/playerDatabase";
 
 // Obter dados de um jogador específico
 export const getPlayerData = (req: Request, res: Response) => {
-  console.log("getPlayerData acionado");
   const playerId = Number(req.params.playerId);
+  console.log("[getPlayerData] Obtendo dados do jogador: ", playerId);
+
   const player = getPlayerByUserId(playerId);
 
   if (player) {
-    console.log(`Fornecendo dados do jogador: ${player.name}`);
+    console.log(`[getPlayerData] Fornecendo dados do jogador: ${player.name}`);
     res.status(200).json({
       type: "playerData",
       content: player,
@@ -25,21 +25,14 @@ export const getPlayerData = (req: Request, res: Response) => {
     return;
   }
 
-  console.log(`Jogador não encontrado ID: ${playerId}`);
+  console.log(`[getPlayerData] Erro: Jogador não encontrado.`);
   res.status(404).json({
     type: "playerData",
     content: `Player ID ${playerId} not found`,
   });
 };
 
-/** Retrieves the leaderboard data and sends it as a JSON response.*/
-export const getLeaderBoard = (req: Request, res: Response) => {
-  const leaderboard = getLeaderboardData();
-  res.json({
-    type: "leaderboard",
-    content: leaderboard,
-  });
-};
+
 
 // Criar um novo jogador. Função chamada na rota POST /players/create
 // Essa rota deve receber um JSON com o nome do jogador

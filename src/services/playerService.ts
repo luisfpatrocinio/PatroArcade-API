@@ -12,18 +12,6 @@ export const getPlayerByName = (name: string) => {
   return playerDatabase.find((player) => player.name === name);
 };
 
-// Retornar o Leaderboard
-export const getLeaderboardData = () => {
-  return playerDatabase
-    .sort((a, b) => b.expPoints - a.expPoints)
-    .map((player) => ({
-      name: player.name,
-      expPoints: player.expPoints,
-      //   totalScore: player.totalScore,
-      //   rankLevel: player.rankLevel,
-    }));
-};
-
 // Gera um novo objeto de jogador, sem ID.
 export function generateNewPlayer(playerName: string): Partial<Player> {
   const _newPlayer: Partial<Player> = {

@@ -10,7 +10,7 @@ export interface GameInfo {
 export const gameDatabase: GameInfo[] = [
   {
     id: 1,
-    title: "PatroAsteroids",
+    title: "Space Squadron",
     description: "A thrilling space shooter game where you destroy asteroids.",
     genre: "Arcade",
     tags: ["space", "shooter", "arcade"],
