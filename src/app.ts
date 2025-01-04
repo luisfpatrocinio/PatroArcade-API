@@ -13,7 +13,6 @@ import {
 // Importar rotas:
 import { playerRoutes } from "./routes/playerRoutes";
 import { leaderboardRoutes } from "./routes/leaderboardRoutes";
-import { scoreRoutes } from "./routes/scoreRoutes";
 import { loginRoutes } from "./routes/loginRoutes";
 import { logoutRoutes } from "./routes/logoutRoutes";
 import { arcadeLoginRoutes } from "./routes/arcadeLoginRoutes";
@@ -41,7 +40,6 @@ app.use(bodyParser.json());
 // Configurar rotas
 app.use("/player", playerRoutes);
 app.use("/leaderboard", leaderboardRoutes);
-app.use("/score", scoreRoutes);
 app.use("/login", loginRoutes);
 app.use("/arcadeLogin", arcadeLoginRoutes);
 app.use("/logout", logoutRoutes);

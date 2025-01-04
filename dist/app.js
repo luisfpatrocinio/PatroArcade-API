@@ -13,7 +13,6 @@ const loginExceptions_1 = require("./exceptions/loginExceptions");
 // Importar rotas:
 const playerRoutes_1 = require("./routes/playerRoutes");
 const leaderboardRoutes_1 = require("./routes/leaderboardRoutes");
-const scoreRoutes_1 = require("./routes/scoreRoutes");
 const loginRoutes_1 = require("./routes/loginRoutes");
 const logoutRoutes_1 = require("./routes/logoutRoutes");
 const arcadeLoginRoutes_1 = require("./routes/arcadeLoginRoutes");
@@ -37,7 +36,6 @@ app.use(body_parser_1.default.json());
 // Configurar rotas
 app.use("/player", playerRoutes_1.playerRoutes);
 app.use("/leaderboard", leaderboardRoutes_1.leaderboardRoutes);
-app.use("/score", scoreRoutes_1.scoreRoutes);
 app.use("/login", loginRoutes_1.loginRoutes);
 app.use("/arcadeLogin", arcadeLoginRoutes_1.arcadeLoginRoutes);
 app.use("/logout", logoutRoutes_1.logoutRoutes);
