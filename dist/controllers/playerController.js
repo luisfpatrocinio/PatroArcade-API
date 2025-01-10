@@ -60,7 +60,7 @@ const getPlayerAllSaves = (req, res) => {
     const playerId = Number(req.params.playerId);
     try {
         const saves = (0, playerService_1.obtainPlayerSaves)(playerId);
-        console.log(`Fornecendo dados de save para o jogador ID: ${playerId}`);
+        console.log(`[getPlayerAllSaves] Fornecendo dados de save para o jogador ID: ${playerId}`);
         return res.status(200).json({ type: "playerSaves", content: saves });
     }
     catch (err) {

@@ -32,8 +32,6 @@ export const getPlayerData = (req: Request, res: Response) => {
   });
 };
 
-
-
 // Criar um novo jogador. Função chamada na rota POST /players/create
 // Essa rota deve receber um JSON com o nome do jogador
 export const createNewPlayer = (req: Request, res: Response) => {
@@ -74,7 +72,9 @@ export const getPlayerAllSaves = (req: Request, res: Response) => {
 
   try {
     const saves = obtainPlayerSaves(playerId);
-    console.log(`Fornecendo dados de save para o jogador ID: ${playerId}`);
+    console.log(
+      `[getPlayerAllSaves] Fornecendo dados de save para o jogador ID: ${playerId}`
+    );
     return res.status(200).json({ type: "playerSaves", content: saves });
   } catch (err) {
     console.error("Erro ao obter dados de save: ", (err as Error).message);

@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { findSaveData } from "../services/saveService";
+import { findSaveData, generateNewSave } from "../services/saveService";
 import { saveDatabase } from "../models/saveData";
 import { updatePlayerTotalScore } from "../services/playerService";
 
@@ -14,13 +14,14 @@ export function getPlayerSaveData(req: Request, res: Response) {
     const save = findSaveData(playerId, gameId);
     return res.status(200).json({ type: "playerSave", content: save });
   } catch (err) {
-    console.error("Erro ao obter dados de save: ", (err as Error).message);
+    console.error(
+      "[findSaveData]\t Erro ao obter dados de save: ",
+      (err as Error).message
+    );
     return res.status(404).json({
       type: "playerSaveFailed",
-      content: "Erro ao obter dados de save.",
+      content: generateNewSave(playerId, gameId),
     });
-  } finally {
-    console.log("[getPlayerSaveData] Solicitação de dados de save finalizada.");
   }
 }
 

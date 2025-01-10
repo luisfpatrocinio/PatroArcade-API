@@ -23,14 +23,11 @@ function getPlayerSaveData(req, res) {
         return res.status(200).json({ type: "playerSave", content: save });
     }
     catch (err) {
-        console.error("Erro ao obter dados de save: ", err.message);
+        console.error("[findSaveData]\t Erro ao obter dados de save: ", err.message);
         return res.status(404).json({
             type: "playerSaveFailed",
-            content: "Erro ao obter dados de save.",
+            content: (0, saveService_1.generateNewSave)(playerId, gameId),
         });
-    }
-    finally {
-        console.log("[getPlayerSaveData] Solicitação de dados de save finalizada.");
     }
 }
 exports.getPlayerSaveData = getPlayerSaveData;

@@ -12,16 +12,24 @@ export function findSaveData(playerId: number, gameId: number) {
     `[findSaveData] Procurando dados de save para o jogador ${playerId} (Game ID: ${gameId})...`
   );
 
-  try {
-    const save = saveDatabase.find(
-      (save) => save.playerId === playerId && save.gameId === gameId
-    );
-    if (save) {
-      console.log("[findSaveData] Dados de save encontrados!");
-      return save;
-    }
-    throw new SaveNotFoundError();
-  } catch (_err: any) {
-    console.error("Erro ao procurar dados de save: ", (_err as Error).message);
+  const save = saveDatabase.find(
+    (save) => save.playerId === playerId && save.gameId === gameId
+  );
+  if (save) {
+    console.log("[findSaveData] Dados de save encontrados!");
+    return save;
   }
+  throw new SaveNotFoundError();
+}
+
+export function generateNewSave(playerId: number, gameId: number) {
+  console.log(
+    `[generateNewSave]\t Gerando novo save para o jogador ${playerId} (Game ID: ${gameId})...`
+  );
+  return {
+    playerId,
+    gameId,
+    data: {},
+    lastPlayed: new Date(),
+  };
 }
