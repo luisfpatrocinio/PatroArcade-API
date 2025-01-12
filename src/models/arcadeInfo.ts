@@ -6,7 +6,7 @@ export interface ArcadeInfo {
 
 export const arcadeDatabase: ArcadeInfo[] = [
   {
-    id: 1,
+    id: 44,
     name: "Arcade Primeiro",
     description: "O primeiro arcade do sistema.",
   },
