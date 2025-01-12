@@ -1,11 +1,9 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getAllPlayersData = exports.getPlayerAllSaves = exports.createNewPlayer = exports.getPlayerData = void 0;
+const tslib_1 = require("tslib");
 const playerService_1 = require("../services/playerService");
-const appError_1 = __importDefault(require("../exceptions/appError"));
+const appError_1 = tslib_1.__importDefault(require("../exceptions/appError"));
 const playerDatabase_1 = require("../models/playerDatabase");
 // Obter dados de um jogador específico
 const getPlayerData = (req, res) => {
@@ -79,3 +77,4 @@ const getAllPlayersData = (req, res) => {
     return res.status(200).json({ type: "allPlayers", content: playerDatabase_1.playerDatabase });
 };
 exports.getAllPlayersData = getAllPlayersData;
+//# sourceMappingURL=playerController.js.map

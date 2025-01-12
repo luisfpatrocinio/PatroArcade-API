@@ -14,3 +14,4 @@ router.get("/", saveController_1.getSaveDatas);
 router.post("/:playerId/:gameId", saveController_1.savePlayerData);
 // Rota para atualizar o Rich Presence Text
 router.post("/updateRichPresence/:playerId/:gameId", saveController_1.updateRichPresence);
+//# sourceMappingURL=saveRoutes.js.map

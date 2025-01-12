@@ -30,3 +30,4 @@ exports.gameDatabase = [
         },
     },
 ];
+//# sourceMappingURL=gameInfo.js.map

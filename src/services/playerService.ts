@@ -1,8 +1,5 @@
 // Serviços para Manipulação de Dados
-import {
-  PlayerHasNoSavesError,
-  PlayerNotFoundError,
-} from "../exceptions/appError";
+import { PlayerNotFoundError } from "../exceptions/appError";
 import { Player, playerDatabase } from "../models/playerDatabase";
 import { PlayerGameData, saveDatabase } from "../models/saveData";
 import { User } from "../models/userModel";

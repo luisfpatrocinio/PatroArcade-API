@@ -34,3 +34,4 @@ router.get("/clients", showClients);
 router.get("/users", showUsers);
 router.get("/players", showPlayers);
 router.get("/save", showSaveDatas);
+//# sourceMappingURL=debugRoutes.js.map

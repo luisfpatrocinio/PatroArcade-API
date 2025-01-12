@@ -1,4 +1,4 @@
-import express, { Request, Response } from "express";
+import { Request, Response } from "express";
 import { Router } from "express";
 import { clients } from "../main";
 import { usersDatabase } from "../models/userModel";

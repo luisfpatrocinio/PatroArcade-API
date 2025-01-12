@@ -8,3 +8,4 @@ const router = (0, express_1.Router)();
 exports.leaderboardRoutes = router;
 // Rota para obter o leaderboards de um jogo específico.
 router.get("/:gameId", leaderboardController_1.getGameLeaderboardRequest);
+//# sourceMappingURL=leaderboardRoutes.js.map

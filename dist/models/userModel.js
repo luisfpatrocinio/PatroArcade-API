@@ -40,3 +40,4 @@ exports.usersDatabase = [
         role: "player",
     },
 ];
+//# sourceMappingURL=userModel.js.map

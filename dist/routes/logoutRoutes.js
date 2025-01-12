@@ -9,3 +9,4 @@ exports.logoutRoutes = router;
 // Rota para obter dados de um jogador específico
 router.post("/", logoutController_1.logout);
 router.post("/arcade/:arcadeId", logoutController_1.disconnectArcadePlayersRequest);
+//# sourceMappingURL=logoutRoutes.js.map

@@ -8,3 +8,4 @@ const router = (0, express_1.Router)();
 exports.gamesRoutes = router;
 // Rota para obter dados de um jogador específico
 router.get("/", gameController_1.getAllGamesData);
+//# sourceMappingURL=gamesRoutes.js.map

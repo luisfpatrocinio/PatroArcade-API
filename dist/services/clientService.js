@@ -39,3 +39,4 @@ function addPlayerToClient(clientId, userId) {
     }
 }
 exports.addPlayerToClient = addPlayerToClient;
+//# sourceMappingURL=clientService.js.map

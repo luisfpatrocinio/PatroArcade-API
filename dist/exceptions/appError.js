@@ -23,3 +23,4 @@ class PlayerHasNoSavesError extends AppError {
 }
 exports.PlayerHasNoSavesError = PlayerHasNoSavesError;
 exports.default = AppError;
+//# sourceMappingURL=appError.js.map

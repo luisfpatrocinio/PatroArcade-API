@@ -8,3 +8,4 @@ const router = (0, express_1.Router)();
 exports.newsRoutes = router;
 // Rota para obter dados de um jogador específico
 router.get("/", newsController_1.getLatestNews);
+//# sourceMappingURL=newsRoutes.js.map

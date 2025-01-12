@@ -15,3 +15,4 @@ const fetchArcadeInfoById = (req, res) => {
     }
 };
 exports.fetchArcadeInfoById = fetchArcadeInfoById;
+//# sourceMappingURL=arcadeController.js.map

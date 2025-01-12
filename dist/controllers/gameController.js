@@ -24,3 +24,4 @@ function getAllGamesData(req, res) {
     res.json({ type: "gamesData", content: games });
 }
 exports.getAllGamesData = getAllGamesData;
+//# sourceMappingURL=gameController.js.map

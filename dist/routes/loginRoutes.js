@@ -15,3 +15,4 @@ router.get("/:clientId", loginArcadeController_1.generateLoginPage);
 router.delete("/:clientId", (req, res) => {
     res.send("Deletando um jogador");
 });
+//# sourceMappingURL=loginRoutes.js.map

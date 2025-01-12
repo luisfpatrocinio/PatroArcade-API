@@ -1,4 +1,3 @@
-import { PlayerGameData } from "./saveData";
 export interface Player {
   id: number;
   name: string;

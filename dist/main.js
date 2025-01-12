@@ -1,13 +1,12 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.wss = exports.clients = void 0;
-const app_1 = __importDefault(require("./app"));
+const tslib_1 = require("tslib");
+const app_1 = tslib_1.__importDefault(require("./app"));
 const ws_1 = require("ws");
-const http_1 = __importDefault(require("http"));
-const dotenv_1 = __importDefault(require("dotenv"));
+const http_1 = tslib_1.__importDefault(require("http"));
+const dotenv_1 = tslib_1.__importDefault(require("dotenv"));
+const data_source_1 = require("./data-source");
 dotenv_1.default.config();
 const PORT = process.env.PORT || 3001;
 // Mapa de clientes conectados ao WebSocket (fliperamas)
@@ -39,9 +38,17 @@ exports.wss.on("connection", (ws) => {
         exports.clients.delete(clientId);
     });
 });
-server.listen(PORT, () => {
-    console.clear();
-    console.log(`PatroTCC rodando: ${PORT}`);
+// Inicializar conexão com o banco de dados
+data_source_1.AppDataSource.initialize()
+    .then(() => {
+    console.log("Conectando ao Banco de Dados...");
+    server.listen(PORT, () => {
+        console.clear();
+        console.log(`PatroTCC rodando: ${PORT}`);
+    });
+})
+    .catch((err) => {
+    console.error("Erro ao conectar ao banco de dados: ", err);
 });
 function manageGameReceivedData(ws, data) {
     console.log(data);
@@ -77,3 +84,4 @@ function getThisClient(ws) {
     }
     return -1;
 }
+//# sourceMappingURL=main.js.map

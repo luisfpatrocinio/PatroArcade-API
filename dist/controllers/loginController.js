@@ -1,14 +1,12 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.tryToLogin = void 0;
+const tslib_1 = require("tslib");
 const userService_1 = require("../services/userService");
 const app_1 = require("../app");
 const playerService_1 = require("../services/playerService");
-const appError_1 = __importDefault(require("../exceptions/appError"));
-const multer_1 = __importDefault(require("multer"));
+const appError_1 = tslib_1.__importDefault(require("../exceptions/appError"));
+const multer_1 = tslib_1.__importDefault(require("multer"));
 const clientService_1 = require("../services/clientService");
 const upload = (0, multer_1.default)();
 exports.tryToLogin = [
@@ -67,3 +65,4 @@ exports.tryToLogin = [
         }
     },
 ];
+//# sourceMappingURL=loginController.js.map

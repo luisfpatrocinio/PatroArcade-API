@@ -1,13 +1,11 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.disconnectArcadePlayersRequest = exports.logout = void 0;
+const tslib_1 = require("tslib");
 const app_1 = require("../app");
 const main_1 = require("../main");
 const userService_1 = require("../services/userService");
-const appError_1 = __importDefault(require("../exceptions/appError"));
+const appError_1 = tslib_1.__importDefault(require("../exceptions/appError"));
 const arcadeService_1 = require("../services/arcadeService");
 function logout(req, res) {
     const { username } = req.body;
@@ -52,3 +50,4 @@ function disconnectArcadePlayersRequest(req, res) {
     console.log(`[DISCONNECT] Jogadores do fliperama ${arcadeId} desconectados.`);
 }
 exports.disconnectArcadePlayersRequest = disconnectArcadePlayersRequest;
+//# sourceMappingURL=logoutController.js.map

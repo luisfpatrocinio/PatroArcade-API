@@ -9,3 +9,4 @@ exports.arcadeLoginRoutes = router;
 // Essa rota vai tentar logar um usuário no painel de administrador.
 // Rota para obter dados de um jogador específico
 router.post("/:clientTempId", loginArcadeController_1.tryToLoginArcade);
+//# sourceMappingURL=arcadeLoginRoutes.js.map

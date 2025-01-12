@@ -12,3 +12,4 @@ function createArcade(arcade) {
     exports.arcadeDatabase.push(arcade);
 }
 exports.createArcade = createArcade;
+//# sourceMappingURL=arcadeInfo.js.map

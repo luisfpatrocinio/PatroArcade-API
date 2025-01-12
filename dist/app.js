@@ -1,13 +1,11 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getConnectedPlayerId = exports.disconnectPlayer = exports.connectPlayer = void 0;
+const tslib_1 = require("tslib");
 // Importações Principais
-const express_1 = __importDefault(require("express"));
-const cors_1 = __importDefault(require("cors"));
-const body_parser_1 = __importDefault(require("body-parser"));
+const express_1 = tslib_1.__importDefault(require("express"));
+const cors_1 = tslib_1.__importDefault(require("cors"));
+const body_parser_1 = tslib_1.__importDefault(require("body-parser"));
 // Importar exceções:
 const loginExceptions_1 = require("./exceptions/loginExceptions");
 // Importar rotas:
@@ -86,3 +84,4 @@ app.get("/", (req, res) => {
     });
 });
 exports.default = app;
+//# sourceMappingURL=app.js.map

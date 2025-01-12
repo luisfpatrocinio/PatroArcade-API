@@ -1,8 +1,8 @@
-import app, { disconnectPlayer, getConnectedPlayerId } from "./app";
+import app from "./app";
 import { WebSocketServer } from "ws";
-import { v4 as uuidv4 } from "uuid";
 import http from "http";
 import dotenv from "dotenv";
+import { AppDataSource } from "./data-source";
 dotenv.config();
 
 const PORT = process.env.PORT || 3001;
@@ -51,10 +51,19 @@ wss.on("connection", (ws) => {
   });
 });
 
-server.listen(PORT, () => {
-  console.clear();
-  console.log(`PatroTCC rodando: ${PORT}`);
-});
+// Inicializar conexão com o banco de dados
+AppDataSource.initialize()
+  .then(() => {
+    console.log("Conectando ao Banco de Dados...");
+
+    server.listen(PORT, () => {
+      console.clear();
+      console.log(`PatroTCC rodando: ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error("Erro ao conectar ao banco de dados: ", err);
+  });
 
 function manageGameReceivedData(ws: any, data: Map<string, any>) {
   console.log(data);

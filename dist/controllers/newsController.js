@@ -23,3 +23,4 @@ function getLatestNews(req, res) {
     res.json({ type: "latestNews", content: news });
 }
 exports.getLatestNews = getLatestNews;
+//# sourceMappingURL=newsController.js.map

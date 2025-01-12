@@ -26,3 +26,4 @@ function updatePlayerScore(playerId, score) {
     }
 }
 exports.updatePlayerScore = updatePlayerScore;
+//# sourceMappingURL=scoreService.js.map

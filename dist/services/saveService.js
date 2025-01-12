@@ -1,10 +1,8 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.generateNewSave = exports.findSaveData = void 0;
-const appError_1 = __importDefault(require("../exceptions/appError"));
+const tslib_1 = require("tslib");
+const appError_1 = tslib_1.__importDefault(require("../exceptions/appError"));
 const saveData_1 = require("../models/saveData");
 class SaveNotFoundError extends appError_1.default {
     constructor() {
@@ -31,3 +29,4 @@ function generateNewSave(playerId, gameId) {
     };
 }
 exports.generateNewSave = generateNewSave;
+//# sourceMappingURL=saveService.js.map

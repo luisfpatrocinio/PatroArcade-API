@@ -7,3 +7,4 @@ const getAllUsers = (req, res) => {
     return res.status(200).json({ type: "allUsers", content: userModel_1.usersDatabase });
 };
 exports.getAllUsers = getAllUsers;
+//# sourceMappingURL=userController.js.map

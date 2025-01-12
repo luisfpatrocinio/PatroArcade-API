@@ -1,5 +1,4 @@
 import { Router } from "express";
-import { tryToLogin } from "../controllers/loginController";
 import { tryToLoginArcade } from "../controllers/loginArcadeController";
 
 // Criar uma instância do Router

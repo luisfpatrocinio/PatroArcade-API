@@ -82,3 +82,4 @@ const updatePlayerTotalScore = (playerId) => {
     }
 };
 exports.updatePlayerTotalScore = updatePlayerTotalScore;
+//# sourceMappingURL=playerService.js.map

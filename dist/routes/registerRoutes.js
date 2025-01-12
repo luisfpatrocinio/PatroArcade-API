@@ -8,3 +8,4 @@ const router = (0, express_1.Router)();
 exports.registerRoutes = router;
 // Rota para obter dados de um jogador específico
 router.post("/", registerController_1.registerUser);
+//# sourceMappingURL=registerRoutes.js.map

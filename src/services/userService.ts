@@ -1,7 +1,4 @@
-import {
-  ClientFullException,
-  ClientNotFoundException,
-} from "../exceptions/loginExceptions";
+import { ClientFullException } from "../exceptions/loginExceptions";
 import { clients } from "../main";
 import { playerDatabase } from "../models/playerDatabase";
 import { User, usersDatabase } from "../models/userModel";
@@ -69,6 +66,6 @@ export function isClientFull(clientId: number): boolean {
 
 export function userHasPlayer(userId: number): boolean {
   // Percorre todos os players, conferindo se há um player com o mesmo userId
-  const players = playerDatabase;   // Database de players
+  const players = playerDatabase; // Database de players
   return players.some((player) => player.userId === userId);
 }

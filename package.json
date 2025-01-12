@@ -4,7 +4,7 @@
   "description": "",
   "main": "main.js",
   "scripts": {
-    "start": "node dist/main.js",
+    "start": "ts-node src/main.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "type": "commonjs",
@@ -19,12 +19,17 @@
     "express-rate-limit": "^7.4.0",
     "express-session": "^1.18.1",
     "multer": "^1.4.5-lts.1",
+    "reflect-metadata": "^0.2.2",
+    "sqlite3": "^5.1.7",
+    "typeorm": "^0.3.20",
     "uuid": "^11.0.2",
     "ws": "^8.18.0"
   },
   "devDependencies": {
     "@types/dotenv": "^8.2.3",
     "@types/express-session": "^1.18.0",
-    "@types/multer": "^1.4.12"
+    "@types/multer": "^1.4.12",
+    "@types/node": "^22.10.5",
+    "ts-node": "^10.9.2"
   }
 }

@@ -69,3 +69,4 @@ function userHasPlayer(userId) {
     return players.some((player) => player.userId === userId);
 }
 exports.userHasPlayer = userHasPlayer;
+//# sourceMappingURL=userService.js.map
