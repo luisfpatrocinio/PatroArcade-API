@@ -26,16 +26,38 @@ function getArcadeInfoById(arcadeId) {
     return arcade;
 }
 exports.getArcadeInfoById = getArcadeInfoById;
+/**
+ * Desconecta todos os jogadores associados a um determinado fliperama.
+ * @param arcadeId O ID do fliperama.
+ * @returns Um array com os dados dos jogadores que foram desconectados.
+ */
+// MUDANÇA 1: Altere a assinatura da função para retornar um array de 'User'.
+// Se o seu tipo de jogador for diferente, substitua 'User[]' pelo tipo correto.
 function disconnectArcadePlayers(arcadeId) {
-    // Percorrer os clients:
-    for (const client of main_1.clients.values()) {
-        if (client.arcadeId === arcadeId) {
-            // Devemos desconectar os jogadores do array players.
+    // MUDANÇA 2: Crie um array para armazenar os jogadores que serão removidos.
+    const disconnectedPlayers = [];
+    // Percorrer os clients (a sua lógica original está correta):
+    const allClients = Array.from(main_1.clients.values());
+    console.log("allClients:", allClients);
+    for (const client of allClients) {
+        // Encontra a conexão do fliperama correto.
+        if (client.id === arcadeId) {
+            // MUDANÇA 3: Antes de desconectar, adicione os jogadores à nossa lista.
+            // Usamos o operador 'spread' (...) para criar uma cópia e evitar problemas de referência.
+            disconnectedPlayers.push(...client.players);
+            // Agora, percorra os jogadores para desconectá-los individualmente.
             for (const player of client.players) {
+                // A função disconnectPlayer remove o jogador do estado global.
                 (0, app_1.disconnectPlayer)(player);
             }
+            // Importante: Depois de desconectar, limpe o array de jogadores do fliperama.
+            client.players = [];
+            // Como encontramos o fliperama, podemos parar o loop para otimização.
+            break;
         }
     }
+    // MUDANÇA 4: Retorne a lista de jogadores que foram coletados.
+    return disconnectedPlayers;
 }
 exports.disconnectArcadePlayers = disconnectArcadePlayers;
 //# sourceMappingURL=arcadeService.js.map

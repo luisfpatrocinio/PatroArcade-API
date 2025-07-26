@@ -40,9 +40,12 @@ export function disconnectArcadePlayers(arcadeId: number): User[] {
     const disconnectedPlayers: User[] = [];
   
     // Percorrer os clients (a sua lógica original está correta):
-    for (const client of clients.values()) {
+    const allClients = Array.from(clients.values());
+    console.log("allClients:", allClients);
+
+    for (const client of allClients) {
       // Encontra a conexão do fliperama correto.
-      if (client.arcadeId === arcadeId) {
+      if (client.id === arcadeId) {
         
         // MUDANÇA 3: Antes de desconectar, adicione os jogadores à nossa lista.
         // Usamos o operador 'spread' (...) para criar uma cópia e evitar problemas de referência.
