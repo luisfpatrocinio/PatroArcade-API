@@ -41,7 +41,6 @@ export function disconnectArcadePlayers(arcadeId: number): User[] {
   
     // Percorrer os clients (a sua lógica original está correta):
     const allClients = Array.from(clients.values());
-    console.log("allClients:", allClients);
 
     for (const client of allClients) {
       // Encontra a conexão do fliperama correto.
