@@ -29,7 +29,7 @@ const arcadeRoutes_1 = require("./routes/arcadeRoutes");
 const app = (0, express_1.default)();
 // Middleware de limitação de requisições
 app.use(express_1.default.json());
-app.use((0, cors_1.default)());
+app.use((0, cors_1.default)({ origin: "*" }));
 app.use(body_parser_1.default.json());
 // Configurar rotas
 app.use("/player", playerRoutes_1.playerRoutes);
