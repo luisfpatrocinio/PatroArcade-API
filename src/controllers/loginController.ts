@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import jwt from "jsonwebtoken";
 import {
   checkCredentials,
   getUserDataByUserName,
@@ -34,28 +35,55 @@ export const tryToLogin = [
       });
     }
 
+    // Verificação JWT
+    if (!process.env.JWT_SECRET) {
+      console.error(
+        "[LoginController] [tryToLogin] JWT_SECRET não está definido nas variáveis de ambiente."
+      );
+      return res.status(500).json({
+        type: "loginFailed",
+        content: "Erro de configuração no servidor.",
+      });
+    }
+
     // Tentar realizar o login
     try {
-      if (checkCredentials(username, password)) {
+      const credentialsAreValid = checkCredentials(username, password);
+      if (credentialsAreValid) {
         const userData = getUserDataByUserName(username);
         const userId = userData.id;
+
+        // Conexão com o Cliente Websocket
         connectPlayer(userId, clientId);
+        addPlayerToClient(clientId, userId);
         const playerData = getPlayerByUserId(userId);
         sendWebSocketMessage(clientId, "playerJoined", playerData);
-        addPlayerToClient(clientId, userId);
+
+        // Criar o payload do Token JWT
+        const payload = {
+          userId: userData.id,
+          username: userData.username,
+        };
+
+        // Gerar (assinar) o token JWT
+        const token = jwt.sign(payload, process.env.JWT_SECRET, {
+          expiresIn: "2h", // O token expira em 2 horas
+        });
+
         console.log(
           `[LoginController] [tryToLogin] Player ${username} conectado com sucesso no cliente ${clientId}.`
         );
 
         if (!userHasPlayer(userId)) {
-            // Esse usuário é novo, e ainda não tem um jogador associado
-            // Retornar um erro específico para essa situação.
-            
+          // Esse usuário é novo, e ainda não tem um jogador associado
+          // Retornar um erro específico para essa situação.
         }
 
+        // Enviar o Token junto com os dados do jogador na resposta.
         res.status(200).json({
           type: "loginSuccess",
           content: playerData,
+          token: token,
         });
       } else {
         res.status(401).json({
