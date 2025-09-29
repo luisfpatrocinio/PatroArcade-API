@@ -1,0 +1,27 @@
+# Project: PatroTCC Backend Server (Arcade Management System)
+
+This repository hosts the core backend server for the PatroTCC project, an integrated management system for physical arcade machines (Fliperamas).
+
+## Architecture & Technology Stack
+*   **Framework:** Express.js (Node.js) with TypeScript.
+*   **Real-time Communication:** Utilizes WebSocket Server (ws library) for persistent, two-way communication with connected arcade clients, handling game state and player synchronization.
+*   **Database:** Currently uses in-memory data structures (simulating database) but is structured for future integration with TypeORM/PostgreSQL.
+
+## Core API Functionality
+The server exposes endpoints for:
+*   User Registration and Login (Player and Arcade logins).
+*   Leaderboard retrieval and score submission.
+*   Game and Save data management.
+
+## Key Feature Implementation: JWT Authentication & RBAC (Security Update)
+A robust security layer has been fully integrated across the HTTP API:
+
+1.  **Authentication (JWT):** User login generates a secure JSON Web Token (JWT) containing user ID, username, and their assigned Role. This is crucial for a stateless, scalable backend.
+2.  **Authorization Middleware:** A dedicated authentication middleware (`authMiddleware`) validates the JWT for all protected endpoints.
+3.  **Role-Based Access Control (RBAC):** A second, chained authorization middleware (`adminAuthMiddleware`) verifies the user's 'role' (either 'player' or 'admin').
+
+### Security Flow
+*   **Player Access:** Secured routes like `/player/me` and `/player/me/saves` rely on the User ID extracted directly from the authenticated JWT, ensuring players can only access their own data.
+*   **Admin Access:** Sensitive routes like `/player/:playerId/saves` utilize a middleware chain (`authMiddleware`, then `adminAuthMiddleware`) to guarantee only authenticated administrators can fetch global data securely.
+
+This update ensures a clear, flexible, and scalable separation between public, authenticated, and authorized service access across the entire application.

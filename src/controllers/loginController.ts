@@ -63,11 +63,12 @@ export const tryToLogin = [
         const payload = {
           userId: userData.id,
           username: userData.username,
+          role: userData.role,
         };
 
         // Gerar (assinar) o token JWT
         const token = jwt.sign(payload, process.env.JWT_SECRET, {
-          expiresIn: "2h", // O token expira em 2 horas
+          expiresIn: "8h", // O token expira em 8 horas
         });
 
         console.log(
@@ -82,8 +83,10 @@ export const tryToLogin = [
         // Enviar o Token junto com os dados do jogador na resposta.
         res.status(200).json({
           type: "loginSuccess",
-          content: playerData,
-          token: token,
+          content: {
+            player: playerData,
+            token: token,
+          },
         });
       } else {
         res.status(401).json({

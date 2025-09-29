@@ -1,18 +1,24 @@
 import { ClientFullException } from "../exceptions/loginExceptions";
 import { clients } from "../main";
 import { playerDatabase } from "../models/playerDatabase";
-import { User, usersDatabase } from "../models/userModel";
+import { User, AdminUser, usersDatabase } from "../models/userModel";
 import { getClientById } from "./clientService";
 
 // Função que verifica se as credenciais são válidas
-export function checkCredentials(username: string, password: string): boolean {
+export function checkCredentials(username: string, passwordFromReq: string): boolean {
   const user = usersDatabase.find(
-    (u) => u.username === username && u.password === password
+    (u) => u.username === username && u.password === passwordFromReq
   );
+
+  // TODO: Implementar hash de senha para melhorar a segurança
+  // Sugestão: Usar bcrypt para hashear senhas antes de armazená-las
+  // Exemplo:
+  // Ex: await bcrypt.compare(password_from_req, user.passwordHash);
+
   return !!user; // Retorna true se o usuário for encontrado, false caso contrário
 }
 
-export function getUserDataByUserName(username: string): User {
+export function getUserDataByUserName(username: string): User | AdminUser {
   const user = usersDatabase.find((u) => u.username === username);
   if (!user) {
     throw new Error(`User with username ${username} not found`);
@@ -20,7 +26,7 @@ export function getUserDataByUserName(username: string): User {
   return user;
 }
 
-export function getUserDataByEmail(email: string): User {
+export function getUserDataByEmail(email: string): User | AdminUser {
   const user = usersDatabase.find((u) => u.email === email);
   if (!user) {
     throw new Error(`User with email ${email} not found`);
@@ -35,7 +41,7 @@ export function addUserToDatabase(user: Partial<User>): User {
     username: user.username!,
     password: user.password!,
     email: user.email!,
-    role: "player",
+    role: "player", // Novos usuários são sempre "player" por padrão
   };
   usersDatabase.push(newUser);
   console.log(`Usuário ${newUser.username} adicionado com sucesso!`);
