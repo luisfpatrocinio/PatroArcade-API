@@ -11,6 +11,11 @@ import { playerDatabase } from "../models/playerDatabase";
 
 // Get the player data for the currently authenticated user
 export const getMyPlayerData = (req: Request, res: Response) => {
+  console.log(
+    "[getMyPlayerData] Controller alcançado. Valor de req.user:",
+    req.user
+  );
+
   // 1. The authMiddleware has already ensured that req.user exists and is valid.
   //    We get the userId directly from the JWT token payload.
   //    This is the secure way to identify the user.

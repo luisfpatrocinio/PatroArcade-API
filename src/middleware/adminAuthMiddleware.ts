@@ -11,6 +11,11 @@ export const adminAuthMiddleware = (
   res: Response,
   next: NextFunction
 ) => {
+  console.log(
+    "[adminAuthMiddleware] VERIFICANDO PERMISSÕES PARA O USUÁRIO:",
+    req.user
+  );
+
   // 1. Acessamos o objeto `req.user` que foi decodificado do token JWT.
   //    A `role` foi incluída no token durante o login.
   //    Usamos `(req.user as any)` como uma forma de dizer ao TypeScript:
@@ -22,7 +27,8 @@ export const adminAuthMiddleware = (
     // 3. Se não for 'admin', bloqueamos a requisição com um status 403 Forbidden.
     return res.status(403).json({
       type: "error",
-      content: "Acesso proibido. Esta ação requer privilégios de administrador.",
+      content:
+        "Acesso proibido. Esta ação requer privilégios de administrador.",
     });
   }
 
