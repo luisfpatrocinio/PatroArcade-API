@@ -1,17 +1,22 @@
 import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 
-// Este bloco "declare global" é um truque do TypeScript.
-// Estamos estendendo a interface 'Request' do Express para que ela
-// reconheça a propriedade 'user' que vamos adicionar.
-// Assim, o TypeScript não reclamará quando usarmos 'req.user' nas nossas rotas.
+interface DecodedJwtPayload extends JwtPayload {
+  userId: number;
+  username: string;
+  role: string;
+}
+
+// Extende o tipo Request do Express para incluir a propriedade 'user'.
+// Isso permite que o TypeScript reconheça 'req.user' como parte do objeto Request,
+// facilitando o acesso aos dados do usuário autenticado em qualquer rota protegida.
+// A interface DecodedJwtPayload define os campos esperados no payload do JWT.
 declare global {
-  namespace Express {
-    interface Request {
-      // A estrutura aqui deve ser a mesma do payload que você criou no loginController
-      user?: { userId: number; username: string };
+    namespace Express {
+        interface Request {
+            user?: DecodedJwtPayload; // Propriedade opcional que armazena os dados do usuário autenticado
+        }
     }
-  }
 }
 
 export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
@@ -34,7 +39,7 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
         // - verifica se a assinatura corresponde à sua JWT_SECRET
         // - verifica se o token não expirou
         // Se algo estiver errado, ela lançará um erro, que será capturado pelo 'catch'
-        const decodedPayload = jwt.verify(token, process.env.JWT_SECRET) as { userId: number; username: string };
+        const decodedPayload = jwt.verify(token, process.env.JWT_SECRET as string) as DecodedJwtPayload;
 
         // 5. Se o token for válido, adicionamos o payload decodificado (com os dados do usuário) ao objeto 'req'.
         // Isso torna os dados do usuário autenticado acessíveis em qualquer rota protegida por este middleware.
