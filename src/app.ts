@@ -4,7 +4,7 @@ import cors from "cors";
 import bodyParser from "body-parser";
 
 // Importar Middleware de Autenticação
-import { authMiddleware } from "./middleware/authMiddleware";
+// import { authMiddleware } from "./middleware/authMiddleware"; // Desativado temporariamente
 
 // Importar exceções:
 import {
@@ -52,10 +52,10 @@ app.use("/games", gamesRoutes);
 
 // --- ROTAS PROTEGIDAS (Obrigatório ter um token JWT válido) ---
 app.use("/player", playerRoutes);
-app.use("/logout", authMiddleware, logoutRoutes);
-app.use("/game", authMiddleware, gameRoutes);
-app.use("/save", authMiddleware, saveRoutes);
-app.use("/arcade", authMiddleware, arcadeRoutes);
+app.use("/logout", logoutRoutes);
+app.use("/game", gameRoutes);
+app.use("/save", saveRoutes);
+app.use("/arcade", arcadeRoutes);
 
 // Rota de debug (apenas em ambiente de desenvolvimento)
 app.use("/debug", debugRoutes);
