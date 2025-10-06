@@ -1,28 +1,68 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getAllPlayersData = exports.getPlayerAllSaves = exports.createNewPlayer = exports.getPlayerData = void 0;
+exports.getAllPlayersData = exports.getPlayerAllSaves = exports.createNewPlayer = exports.getPlayerData = exports.getMyPlayerData = void 0;
 const tslib_1 = require("tslib");
 const playerService_1 = require("../services/playerService");
 const appError_1 = tslib_1.__importDefault(require("../exceptions/appError"));
 const playerDatabase_1 = require("../models/playerDatabase");
-// Obter dados de um jogador específico
-const getPlayerData = (req, res) => {
-    const playerId = Number(req.params.playerId);
-    console.log("[getPlayerData] Obtendo dados do jogador: ", playerId);
-    const player = (0, playerService_1.getPlayerByUserId)(playerId);
+// Get the player data for the currently authenticated user
+const getMyPlayerData = (req, res) => {
+    console.log("[getMyPlayerData] Controller alcançado. Valor de req.user:", req.user);
+    // 1. The authMiddleware has already ensured that req.user exists and is valid.
+    //    We get the userId directly from the JWT token payload.
+    //    This is the secure way to identify the user.
+    const userId = req.user.userId;
+    console.log(`[getMyPlayerData] Fetching data for authenticated user: ID ${userId}`);
+    // 2. Use the service to find the player profile associated with this userId.
+    const player = (0, playerService_1.getPlayerByUserId)(userId);
+    // 3. If a player profile is found, return the data.
     if (player) {
-        console.log(`[getPlayerData] Fornecendo dados do jogador: ${player.name}`);
-        res.status(200).json({
+        console.log(`[getMyPlayerData] Returning player data: ${player.name}`);
+        return res.status(200).json({
             type: "playerData",
             content: player,
         });
-        return;
     }
-    console.log(`[getPlayerData] Erro: Jogador não encontrado.`);
-    res.status(404).json({
-        type: "playerData",
-        content: `Player ID ${playerId} not found`,
+    // 4. If no profile is found (e.g., newly created user without a player profile),
+    //    return a 404 Not Found error.
+    console.log(`[getMyPlayerData] Error: Player not found for user ID: ${userId}`);
+    return res.status(404).json({
+        type: "playerDataFailed",
+        content: `Player associated with your user was not found.`,
     });
+};
+exports.getMyPlayerData = getMyPlayerData;
+// Get data for a specific player by playerId parameter
+const getPlayerData = (req, res) => {
+    try {
+        // Parse playerId from request parameters
+        const playerId = Number(req.params.playerId);
+        console.log("[getPlayerData] Fetching data for player: ", playerId);
+        // Retrieve player data using the userId (assumed to be playerId here)
+        const player = (0, playerService_1.getPlayerByUserId)(playerId);
+        // If player exists, return player data
+        if (player) {
+            console.log(`[getPlayerData] Returning data for player: ${player.name}`);
+            return res.status(200).json({
+                type: "playerData",
+                content: player,
+            });
+        }
+        // If player not found, return 404 error
+        console.log(`[getPlayerData] Error: Player not found.`);
+        res.status(404).json({
+            type: "playerData",
+            content: `Player ID ${playerId} not found`,
+        });
+    }
+    catch (error) {
+        // Handle unexpected errors
+        console.error("[getPlayerData] Unexpected error: ", error);
+        return res.status(500).json({
+            type: "serverError",
+            content: "Unexpected error while processing the request.",
+        });
+    }
 };
 exports.getPlayerData = getPlayerData;
 // Criar um novo jogador. Função chamada na rota POST /players/create
@@ -54,11 +94,24 @@ const createNewPlayer = (req, res) => {
 exports.createNewPlayer = createNewPlayer;
 // Obter todos os saves de um jogador
 const getPlayerAllSaves = (req, res) => {
-    console.log("getPlayerAllSaves acionado");
-    const playerId = Number(req.params.playerId);
+    var _a;
+    // LÓGICA INTELIGENTE DE SELEÇÃO DE ID
+    // 1. Verificamos se um 'playerId' foi fornecido na URL (rota de admin)
+    // 2. Se foi, usamos esse ID
+    // 3. Se não, significa que a rota 'me/saves' foi chamada, e usamos o ID do usuário autenticado (req.user)
+    const desiredPlayerId = req.params.playerId
+        ? Number(req.params.playerId)
+        : (_a = req.user) === null || _a === void 0 ? void 0 : _a.userId;
+    console.log(`[getPlayerAllSaves] Solicitando saves para o ID de usuário: ${desiredPlayerId}`);
+    if (typeof desiredPlayerId !== "number" || isNaN(desiredPlayerId)) {
+        return res.status(400).json({
+            type: "playerSavesFailed",
+            content: "Player ID is required and must be a valid number.",
+        });
+    }
     try {
-        const saves = (0, playerService_1.obtainPlayerSaves)(playerId);
-        console.log(`[getPlayerAllSaves] Fornecendo dados de save para o jogador ID: ${playerId}`);
+        const saves = (0, playerService_1.obtainPlayerSaves)(desiredPlayerId);
+        console.log(`[getPlayerAllSaves] Fornecendo dados de save para o jogador ID: ${desiredPlayerId}`);
         return res.status(200).json({ type: "playerSaves", content: saves });
     }
     catch (err) {

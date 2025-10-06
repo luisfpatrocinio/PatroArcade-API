@@ -1,19 +1,31 @@
 import { Router } from "express";
 import {
-  createNewPlayer,
-  getAllPlayersData,
-  getPlayerAllSaves,
-  getPlayerData,
+    createNewPlayer,
+    getAllPlayersData,
+    getPlayerAllSaves,
+    getPlayerData,
+    getMyPlayerData,
 } from "../controllers/playerController";
+import { authMiddleware } from "../middleware/authMiddleware";
+import { adminAuthMiddleware } from "../middleware/adminAuthMiddleware";
 
-// Criar uma instância do Router
 const router = Router();
 
-// Rota para obter dados de um jogador específico
+// Public routes
 router.post("/create", createNewPlayer);
 router.get("/", getAllPlayersData);
-router.get("/:playerId", getPlayerData);
-router.get("/:playerId/saves", getPlayerAllSaves);
 
-// Exportar o router usando um alias
+// Player protected routes
+router.get("/me", authMiddleware, getMyPlayerData);
+router.get("/:playerId", getPlayerData);
+router.get("/me/saves", authMiddleware, getPlayerAllSaves);
+
+// Admin protected route
+router.get(
+    "/:playerId/saves",
+    authMiddleware,
+    adminAuthMiddleware,
+    getPlayerAllSaves
+);
+
 export { router as playerRoutes };

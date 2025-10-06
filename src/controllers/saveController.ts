@@ -3,14 +3,19 @@ import { findSaveData, generateNewSave } from "../services/saveService";
 import { saveDatabase } from "../models/saveData";
 import { updatePlayerTotalScore } from "../services/playerService";
 
-export function getPlayerSaveData(req: Request, res: Response) {
-  console.log("[getPlayerSaveData] Solicitando dados salvos...");
+// Função auxiliar "inteligente" para descobrir qual ID usar
+function getRelevantPlayerId(req: Request): number {
+  // Se a rota tem um :playerId (ex: /save/123/1), é uma requisição de admin. Usa ele.
+  // Senão (ex: /save/me/1), é uma requisição de jogador. Usa o ID do token.
+  return req.params.playerId ? Number(req.params.playerId) : req.user!.userId;
+}
 
-  const playerId = Number(req.params.playerId);
+export function getPlayerSaveData(req: Request, res: Response) {
+  const playerId = getRelevantPlayerId(req);
   const gameId = Number(req.params.gameId);
 
-  // Consultar o banco de dados para obter os dados salvos do jogador
   try {
+    console.log("[getPlayerSaveData] Solicitando dados salvos...");
     const save = findSaveData(playerId, gameId);
     return res.status(200).json({ type: "playerSave", content: save });
   } catch (err) {
@@ -27,18 +32,18 @@ export function getPlayerSaveData(req: Request, res: Response) {
 
 export function getSaveDatas(req: Request, res: Response) {
   console.log("Obtendo todos os dados salvos.");
-
   const saves = saveDatabase;
   return res.status(200).json({ type: "allSaves", content: saves });
 }
 
 // Função que recebe dados do jogador do jogo e atualiza no banco de dados.
+// Esta função só é chamada pela rota /me:gameId.
+// Portanto, o playerId VEM APENAS do token. É 100% seguro.
 export async function savePlayerData(req: Request, res: Response) {
-  const playerId = Number(req.params.playerId);
+  const playerId = req.user!.userId;
   const gameId = Number(req.params.gameId);
   const data = req.body;
 
-  // Atualizar o banco de dados com os novos dados do jogador
   try {
     // Localiza o save do jogador no banco de dados
     const saveIndex = saveDatabase.findIndex(
@@ -92,12 +97,15 @@ export async function savePlayerData(req: Request, res: Response) {
 
 // Função que vai receber o texto do Rich Presence e atualizar no banco de dados.
 export function updateRichPresence(req: Request, res: Response) {
-  const playerId = Number(req.params.playerId);
+  const playerId = req.user!.userId;
   const gameId = Number(req.params.gameId);
   const richPresenceText = req.body.richPresenceText;
 
-  // Atualizar o banco de dados com o novo texto do Rich Presence
   try {
+    console.log(
+      `[updateRichPresence] Atualizando Rich Presence para Player: ${playerId} Game: ${gameId}`
+    );
+    // Atualizar o banco de dados com o novo texto do Rich Presence
     // Localiza o save do jogador no banco de dados
     const saveIndex = saveDatabase.findIndex(
       (save) => save.playerId === playerId && save.gameId === gameId

@@ -1,0 +1,45 @@
+# Project Context: PatroTCC Arcade Management System Backend
+
+## Project Overview
+
+This is the backend server for "PatroTCC", a comprehensive arcade management system. The server is built with Node.js, Express, and TypeScript. Its primary purpose is to act as a central hub for multiple clients: video games developed in Godot and a web-based administration platform. It manages user data, player profiles, game saves, leaderboards, and real-time connections to physical arcade machines.
+
+## Core Technologies
+
+-   **Backend Framework:** Express.js
+-   **Language:** TypeScript
+-   **Real-time Communication:** WebSocket (`ws` library) for managing connections with physical arcade machines (clients).
+-   **Authentication:** JSON Web Tokens (JWT) for securing API endpoints.
+-   **Database (Current):** In-memory arrays (`usersDatabase`, `playerDatabase`) for rapid development and testing.
+-   **Database (Future):** The project is structured with services and models, designed for a future migration to a persistent database using an ORM like TypeORM.
+
+## Key Features & Architecture
+
+### 1. User and Player Management
+-   Handles user registration, login, and profile management.
+-   Distinguishes between a `User` (the account with credentials) and a `Player` (the in-game profile associated with a user).
+
+### 2. Arcade Client Management (WebSockets)
+-   A WebSocket server (`wss`) runs alongside the HTTP server.
+-   Physical arcade machines connect as WebSocket clients.
+-   The server tracks connected machines and which players are currently logged into each one.
+-   Facilitates real-time events, such as a player joining a game on a specific machine.
+
+### 3. API Endpoints
+-   Provides RESTful API endpoints for actions like fetching player data, submitting scores, and saving game progress.
+-   Serves data for public leaderboards and news updates.
+
+### 4. Authentication and Authorization System (JWT-based)
+This is a critical component of the architecture.
+
+-   **Authentication Flow:** Upon successful login, the server generates a JWT containing the user's ID, username, and role. This token must be included in the `Authorization: Bearer <token>` header for all subsequent requests to protected endpoints.
+
+-   **Role-Based Access Control (RBAC):** The system defines two primary user roles:
+    -   `player`: A standard user who plays games. They have access to public data and their own private data (e.g., their game saves). They access their own data via dedicated `/me` routes (e.g., `GET /player/me`, `GET /player/me/saves`).
+    -   `admin`: A privileged user (e.g., the web platform). Admins have access to public data, their own data, and the data of **any** player. This allows the web platform to display information about all players.
+
+-   **Middleware Chain:** Endpoint protection is handled by a chain of Express middlewares:
+    -   `authMiddleware.ts`: Verifies the JWT's validity and attaches the decoded user payload to the `req.user` object. If the token is invalid or missing, it returns a `401 Unauthorized` error.
+    -   `adminAuthMiddleware.ts`: This runs *after* `authMiddleware`. It checks if `req.user.role` is equal to `'admin'`. If not, it returns a `403 Forbidden` error.
+
+This layered approach ensures that API endpoints can be precisely controlled, allowing for public, player-specific, and admin-only access levels.

@@ -3,6 +3,9 @@ import express, { Application } from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
 
+// Importar Middleware de Autenticação
+// import { authMiddleware } from "./middleware/authMiddleware"; // Desativado temporariamente
+
 // Importar exceções:
 import {
   AlreadyConnectedException,
@@ -18,16 +21,17 @@ import { logoutRoutes } from "./routes/logoutRoutes";
 import { arcadeLoginRoutes } from "./routes/arcadeLoginRoutes";
 import { newsRoutes } from "./routes/newsRoutes";
 import { debugRoutes } from "./routes/debugRoutes";
-
-// Importações que não deviam estar aqui:
-import { clients } from "./main";
-import { isAlreadyConnected, isClientFull } from "./services/userService";
-import { clientExists } from "./services/clientService";
 import { gameRoutes } from "./routes/gameRoutes";
 import { saveRoutes } from "./routes/saveRoutes";
 import { gamesRoutes } from "./routes/gamesRoutes";
 import { registerRoutes } from "./routes/registerRoutes";
 import { arcadeRoutes } from "./routes/arcadeRoutes";
+
+// Importações que não deviam estar aqui:
+import { clients } from "./main";
+import { isAlreadyConnected, isClientFull } from "./services/userService";
+import { clientExists } from "./services/clientService";
+import { authMiddleware } from "./middleware/authMiddleware";
 
 // Criar a instância do Express
 const app: Application = express();
@@ -37,19 +41,24 @@ app.use(express.json());
 app.use(cors({ origin: "*" }));
 app.use(bodyParser.json());
 
-// Configurar rotas
-app.use("/player", playerRoutes);
-app.use("/leaderboard", leaderboardRoutes);
+// --- CONFIGURAÇÃO DE ROTAS ---
+
+// --- ROTAS PÚBLICAS (Não precisam de token) ---
 app.use("/login", loginRoutes);
-app.use("/arcadeLogin", arcadeLoginRoutes);
-app.use("/logout", logoutRoutes);
-app.use("/latestNews", newsRoutes);
-app.use("/game", gameRoutes);
-app.use("/games", gamesRoutes);
-app.use("/save", saveRoutes);
 app.use("/register", registerRoutes);
+app.use("/arcadeLogin", arcadeLoginRoutes);
+app.use("/leaderboard", leaderboardRoutes);
+app.use("/latestNews", newsRoutes);
+app.use("/games", gamesRoutes);
+
+// --- ROTAS PROTEGIDAS (Obrigatório ter um token JWT válido) ---
+app.use("/player", playerRoutes);
+app.use("/logout", logoutRoutes);
+app.use("/game", gameRoutes);
+app.use("/save", authMiddleware, saveRoutes);
 app.use("/arcade", arcadeRoutes);
 
+// Rota de debug (apenas em ambiente de desenvolvimento)
 app.use("/debug", debugRoutes);
 
 // TODO: Configurar sessões

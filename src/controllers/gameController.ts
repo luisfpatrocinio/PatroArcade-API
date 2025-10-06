@@ -18,6 +18,7 @@ export function getGameDatabyGameId(req: Request, res: Response) {
   }
 }
 
+/// Função para obter dados de todos os jogos (sem filtro por ID)
 export function getAllGamesData(req: Request, res: Response) {
   const games = gameDatabase;
   res.json({ type: "gamesData", content: games });

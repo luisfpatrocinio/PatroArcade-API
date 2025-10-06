@@ -7,8 +7,12 @@ const playerDatabase_1 = require("../models/playerDatabase");
 const userModel_1 = require("../models/userModel");
 const clientService_1 = require("./clientService");
 // Função que verifica se as credenciais são válidas
-function checkCredentials(username, password) {
-    const user = userModel_1.usersDatabase.find((u) => u.username === username && u.password === password);
+function checkCredentials(username, passwordFromReq) {
+    const user = userModel_1.usersDatabase.find((u) => u.username === username && u.password === passwordFromReq);
+    // TODO: Implementar hash de senha para melhorar a segurança
+    // Sugestão: Usar bcrypt para hashear senhas antes de armazená-las
+    // Exemplo:
+    // Ex: await bcrypt.compare(password_from_req, user.passwordHash);
     return !!user; // Retorna true se o usuário for encontrado, false caso contrário
 }
 exports.checkCredentials = checkCredentials;
@@ -35,7 +39,7 @@ function addUserToDatabase(user) {
         username: user.username,
         password: user.password,
         email: user.email,
-        role: "player",
+        role: "player", // Novos usuários são sempre "player" por padrão
     };
     userModel_1.usersDatabase.push(newUser);
     console.log(`Usuário ${newUser.username} adicionado com sucesso!`);
