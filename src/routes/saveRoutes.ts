@@ -5,21 +5,22 @@ import {
   savePlayerData,
   updateRichPresence,
 } from "../controllers/saveController";
+import { adminAuthMiddleware } from "../middleware/adminAuthMiddleware";
 
-// Criar uma instância do Router
 const router = Router();
 
-// Rota para obter dados de um jogador específico
-router.get("/:playerId/:gameId", getPlayerSaveData);
+// --- Rotas do Jogador (Godot) ---
+// CORREÇÃO: Adicionada a barra "/" entre "me" e ":gameId".
+router.get("/me/:gameId", getPlayerSaveData);
+router.post("/me/:gameId", savePlayerData);
 
-// Rota para obter todos os dados salvos
-router.get("/", getSaveDatas);
+// Esta já estava correta, mas mantemos aqui para consistência.
+router.post("/me/updateRichPresence/:gameId", updateRichPresence);
 
-// Rota para salvar dados de um jogador
-router.post("/:playerId/:gameId", savePlayerData);
+// --- Rotas do Admin (Para o Webserver) ---
+// A ordem está correta, mas as rotas de jogador precisam estar certas para serem encontradas primeiro.
 
-// Rota para atualizar o Rich Presence Text
-router.post("/updateRichPresence/:playerId/:gameId", updateRichPresence);
+router.get("/", adminAuthMiddleware, getSaveDatas);
+router.get("/:playerId/:gameId", adminAuthMiddleware, getPlayerSaveData);
 
-// Exportar o router usando um alias
 export { router as saveRoutes };

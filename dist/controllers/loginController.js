@@ -44,7 +44,6 @@ exports.tryToLogin = [
                 (0, app_1.connectPlayer)(userId, clientId);
                 (0, clientService_1.addPlayerToClient)(clientId, userId);
                 const playerData = (0, playerService_1.getPlayerByUserId)(userId);
-                (0, clientService_1.sendWebSocketMessage)(clientId, "playerJoined", playerData);
                 // Criar o payload do Token JWT
                 const payload = {
                     userId: userData.id,
@@ -55,6 +54,12 @@ exports.tryToLogin = [
                 const token = jsonwebtoken_1.default.sign(payload, process.env.JWT_SECRET, {
                     expiresIn: "8h", // O token expira em 8 horas
                 });
+                // Cria objeto com tudo que o cliente precisa saber sobre o jogador
+                const loginContent = {
+                    player: playerData,
+                    token: token,
+                };
+                (0, clientService_1.sendWebSocketMessage)(clientId, "playerJoined", loginContent);
                 console.log(`[LoginController] [tryToLogin] Player ${username} conectado com sucesso no cliente ${clientId}.`);
                 if (!(0, userService_1.userHasPlayer)(userId)) {
                     // Esse usuário é novo, e ainda não tem um jogador associado
@@ -63,10 +68,7 @@ exports.tryToLogin = [
                 // Enviar o Token junto com os dados do jogador na resposta.
                 res.status(200).json({
                     type: "loginSuccess",
-                    content: {
-                        player: playerData,
-                        token: token,
-                    },
+                    content: loginContent
                 });
             }
             else {

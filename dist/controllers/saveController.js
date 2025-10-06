@@ -5,12 +5,17 @@ const tslib_1 = require("tslib");
 const saveService_1 = require("../services/saveService");
 const saveData_1 = require("../models/saveData");
 const playerService_1 = require("../services/playerService");
+// Função auxiliar "inteligente" para descobrir qual ID usar
+function getRelevantPlayerId(req) {
+    // Se a rota tem um :playerId (ex: /save/123/1), é uma requisição de admin. Usa ele.
+    // Senão (ex: /save/me/1), é uma requisição de jogador. Usa o ID do token.
+    return req.params.playerId ? Number(req.params.playerId) : req.user.userId;
+}
 function getPlayerSaveData(req, res) {
-    console.log("[getPlayerSaveData] Solicitando dados salvos...");
-    const playerId = Number(req.params.playerId);
+    const playerId = getRelevantPlayerId(req);
     const gameId = Number(req.params.gameId);
-    // Consultar o banco de dados para obter os dados salvos do jogador
     try {
+        console.log("[getPlayerSaveData] Solicitando dados salvos...");
         const save = (0, saveService_1.findSaveData)(playerId, gameId);
         return res.status(200).json({ type: "playerSave", content: save });
     }
@@ -30,12 +35,13 @@ function getSaveDatas(req, res) {
 }
 exports.getSaveDatas = getSaveDatas;
 // Função que recebe dados do jogador do jogo e atualiza no banco de dados.
+// Esta função só é chamada pela rota /me:gameId.
+// Portanto, o playerId VEM APENAS do token. É 100% seguro.
 function savePlayerData(req, res) {
     return tslib_1.__awaiter(this, void 0, void 0, function* () {
-        const playerId = Number(req.params.playerId);
+        const playerId = req.user.userId;
         const gameId = Number(req.params.gameId);
         const data = req.body;
-        // Atualizar o banco de dados com os novos dados do jogador
         try {
             // Localiza o save do jogador no banco de dados
             const saveIndex = saveData_1.saveDatabase.findIndex((save) => save.playerId === playerId && save.gameId === gameId);
@@ -75,11 +81,12 @@ function savePlayerData(req, res) {
 exports.savePlayerData = savePlayerData;
 // Função que vai receber o texto do Rich Presence e atualizar no banco de dados.
 function updateRichPresence(req, res) {
-    const playerId = Number(req.params.playerId);
+    const playerId = req.user.userId;
     const gameId = Number(req.params.gameId);
     const richPresenceText = req.body.richPresenceText;
-    // Atualizar o banco de dados com o novo texto do Rich Presence
     try {
+        console.log(`[updateRichPresence] Atualizando Rich Presence para Player: ${playerId} Game: ${gameId}`);
+        // Atualizar o banco de dados com o novo texto do Rich Presence
         // Localiza o save do jogador no banco de dados
         const saveIndex = saveData_1.saveDatabase.findIndex((save) => save.playerId === playerId && save.gameId === gameId);
         // Ao encontrar:

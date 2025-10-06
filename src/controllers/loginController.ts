@@ -57,7 +57,6 @@ export const tryToLogin = [
         connectPlayer(userId, clientId);
         addPlayerToClient(clientId, userId);
         const playerData = getPlayerByUserId(userId);
-        sendWebSocketMessage(clientId, "playerJoined", playerData);
 
         // Criar o payload do Token JWT
         const payload = {
@@ -71,6 +70,14 @@ export const tryToLogin = [
           expiresIn: "8h", // O token expira em 8 horas
         });
 
+        // Cria objeto com tudo que o cliente precisa saber sobre o jogador
+        const loginContent = {
+          player: playerData,
+          token: token,
+        };
+
+        sendWebSocketMessage(clientId, "playerJoined", loginContent);
+
         console.log(
           `[LoginController] [tryToLogin] Player ${username} conectado com sucesso no cliente ${clientId}.`
         );
@@ -83,10 +90,7 @@ export const tryToLogin = [
         // Enviar o Token junto com os dados do jogador na resposta.
         res.status(200).json({
           type: "loginSuccess",
-          content: {
-            player: playerData,
-            token: token,
-          },
+          content: loginContent
         });
       } else {
         res.status(401).json({

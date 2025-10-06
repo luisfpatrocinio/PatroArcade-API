@@ -31,6 +31,7 @@ import { arcadeRoutes } from "./routes/arcadeRoutes";
 import { clients } from "./main";
 import { isAlreadyConnected, isClientFull } from "./services/userService";
 import { clientExists } from "./services/clientService";
+import { authMiddleware } from "./middleware/authMiddleware";
 
 // Criar a instância do Express
 const app: Application = express();
@@ -54,7 +55,7 @@ app.use("/games", gamesRoutes);
 app.use("/player", playerRoutes);
 app.use("/logout", logoutRoutes);
 app.use("/game", gameRoutes);
-app.use("/save", saveRoutes);
+app.use("/save", authMiddleware, saveRoutes);
 app.use("/arcade", arcadeRoutes);
 
 // Rota de debug (apenas em ambiente de desenvolvimento)

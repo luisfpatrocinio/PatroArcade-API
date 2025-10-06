@@ -7,7 +7,7 @@ const express_1 = tslib_1.__importDefault(require("express"));
 const cors_1 = tslib_1.__importDefault(require("cors"));
 const body_parser_1 = tslib_1.__importDefault(require("body-parser"));
 // Importar Middleware de Autenticação
-const authMiddleware_1 = require("./middleware/authMiddleware");
+// import { authMiddleware } from "./middleware/authMiddleware"; // Desativado temporariamente
 // Importar exceções:
 const loginExceptions_1 = require("./exceptions/loginExceptions");
 // Importar rotas:
@@ -27,6 +27,7 @@ const arcadeRoutes_1 = require("./routes/arcadeRoutes");
 const main_1 = require("./main");
 const userService_1 = require("./services/userService");
 const clientService_1 = require("./services/clientService");
+const authMiddleware_1 = require("./middleware/authMiddleware");
 // Criar a instância do Express
 const app = (0, express_1.default)();
 // Middleware de limitação de requisições
@@ -43,10 +44,10 @@ app.use("/latestNews", newsRoutes_1.newsRoutes);
 app.use("/games", gamesRoutes_1.gamesRoutes);
 // --- ROTAS PROTEGIDAS (Obrigatório ter um token JWT válido) ---
 app.use("/player", playerRoutes_1.playerRoutes);
-app.use("/logout", authMiddleware_1.authMiddleware, logoutRoutes_1.logoutRoutes);
-app.use("/game", authMiddleware_1.authMiddleware, gameRoutes_1.gameRoutes);
+app.use("/logout", logoutRoutes_1.logoutRoutes);
+app.use("/game", gameRoutes_1.gameRoutes);
 app.use("/save", authMiddleware_1.authMiddleware, saveRoutes_1.saveRoutes);
-app.use("/arcade", authMiddleware_1.authMiddleware, arcadeRoutes_1.arcadeRoutes);
+app.use("/arcade", arcadeRoutes_1.arcadeRoutes);
 // Rota de debug (apenas em ambiente de desenvolvimento)
 app.use("/debug", debugRoutes_1.debugRoutes);
 // TODO: Configurar sessões
