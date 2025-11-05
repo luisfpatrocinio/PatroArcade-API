@@ -50,9 +50,10 @@ app.use("/arcadeLogin", arcadeLoginRoutes);
 app.use("/leaderboard", leaderboardRoutes);
 app.use("/latestNews", newsRoutes);
 app.use("/games", gamesRoutes);
+app.use("/player", playerRoutes);
+
 
 // --- ROTAS PROTEGIDAS (Obrigatório ter um token JWT válido) ---
-app.use("/player", playerRoutes);
 app.use("/logout", logoutRoutes);
 app.use("/game", gameRoutes);
 app.use("/save", authMiddleware, saveRoutes);
