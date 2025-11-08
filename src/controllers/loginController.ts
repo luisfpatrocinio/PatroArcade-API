@@ -18,7 +18,7 @@ const upload = multer();
 
 export const tryToLogin = [
   upload.none(),
-  (req: Request, res: Response) => {
+  async (req: Request, res: Response) => {
     // Analisar credenciais recebidas
     const username = req.body.username;
     const password = req.body.password;
@@ -48,7 +48,7 @@ export const tryToLogin = [
 
     // Tentar realizar o login
     try {
-      const credentialsAreValid = checkCredentials(username, password);
+      const credentialsAreValid = await checkCredentials(username, password);
       if (credentialsAreValid) {
         const userData = getUserDataByUserName(username);
         const userId = userData.id;
@@ -90,7 +90,7 @@ export const tryToLogin = [
         // Enviar o Token junto com os dados do jogador na resposta.
         res.status(200).json({
           type: "loginSuccess",
-          content: loginContent
+          content: loginContent,
         });
       } else {
         res.status(401).json({

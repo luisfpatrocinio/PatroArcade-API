@@ -5,6 +5,7 @@ const tslib_1 = require("tslib");
 const userService_1 = require("../services/userService");
 const appError_1 = tslib_1.__importDefault(require("../exceptions/appError"));
 const playerService_1 = require("../services/playerService");
+const bcrypt_1 = tslib_1.__importDefault(require("bcrypt"));
 function registerUser(req, res) {
     return tslib_1.__awaiter(this, void 0, void 0, function* () {
         // Vai chegar um json com os dados do usuário
@@ -38,11 +39,13 @@ function registerUser(req, res) {
             if (emailExists) {
                 throw new appError_1.default("Email já existe.", 400);
             }
+            const saltRounds = 10;
+            const hashedPassword = yield bcrypt_1.default.hash(password, saltRounds);
             // Se tudo estiver ok, criar o usuário
             const newUser = {
                 username,
                 email,
-                password,
+                password: hashedPassword,
             };
             // Adicionar o usuário ao banco de dados
             const newUserAdded = (0, userService_1.addUserToDatabase)(newUser);

@@ -11,7 +11,7 @@ dotenv.config();
 
 const pageUrl = process.env.PAGEURL || "http://localhost:5999";
 
-export function tryToLoginArcade(req: Request, res: Response) {
+export async function tryToLoginArcade(req: Request, res: Response) {
   // Analisa credenciais recebidas.
   const clientTempId = req.params.clientTempId;
   const { username, password } = req.body;
@@ -21,7 +21,7 @@ export function tryToLoginArcade(req: Request, res: Response) {
 
   try {
     // Verifica se as credenciais são válidas.
-    if (checkCredentials(username, password)) {
+    if (await checkCredentials(username, password)) {
       // Credenciais válidas. Checando se é um admin.
       const user = getUserDataByUserName(username) as AdminUser;
       if (user.role !== "admin") {
@@ -44,6 +44,10 @@ export function tryToLoginArcade(req: Request, res: Response) {
       updateArcadeIdentifier(id, clientTempId);
     } else {
       // Se as credenciais não forem válidas, retorna erro.
+      res.status(401).json({
+        type: "arcadeLoginError",
+        content: "Credenciais inválidas.",
+      });
     }
   } catch (error: any) {
     res.status(error.statusCode);

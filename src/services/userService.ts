@@ -3,19 +3,31 @@ import { clients } from "../main";
 import { playerDatabase } from "../models/playerDatabase";
 import { User, AdminUser, usersDatabase } from "../models/userModel";
 import { getClientById } from "./clientService";
+import bcrypt from "bcrypt";
 
 // Função que verifica se as credenciais são válidas
-export function checkCredentials(username: string, passwordFromReq: string): boolean {
-  const user = usersDatabase.find(
-    (u) => u.username === username && u.password === passwordFromReq
-  );
+export async function checkCredentials(
+  username: string,
+  passwordFromReq: string
+): Promise<boolean> {
 
-  // TODO: Implementar hash de senha para melhorar a segurança
-  // Sugestão: Usar bcrypt para hashear senhas antes de armazená-las
-  // Exemplo:
-  // Ex: await bcrypt.compare(password_from_req, user.passwordHash);
+  // Primeiro, encontre o usuário (de forma síncrona, já que é um array em memória)
+  const user = usersDatabase.find((u) => u.username === username);
 
-  return !!user; // Retorna true se o usuário for encontrado, false caso contrário
+  // Se o usuário não existir, retorne false
+  if (!user) {
+    return false;
+  }
+
+  // Se o usuário existir, compare a senha da requisição com o HASH salvo
+  // A função bcrypt.compare faz a mágica de forma segura e assíncrona.
+  try {
+    const isMatch = await bcrypt.compare(passwordFromReq, user.password);
+    return isMatch;
+  } catch (error) {
+    console.error("Erro ao comparar senhas:", error);
+    return false;
+  }
 }
 
 export function getUserDataByUserName(username: string): User | AdminUser {

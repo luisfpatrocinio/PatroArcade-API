@@ -5,6 +5,7 @@ import {
 } from "../services/userService";
 import AppError from "../exceptions/appError";
 import { createPlayerForUser } from "../services/playerService";
+import bcrypt from "bcrypt";
 
 export async function registerUser(req: Request, res: Response) {
   // Vai chegar um json com os dados do usuário
@@ -41,11 +42,14 @@ export async function registerUser(req: Request, res: Response) {
       throw new AppError("Email já existe.", 400);
     }
 
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
     // Se tudo estiver ok, criar o usuário
     const newUser = {
       username,
       email,
-      password,
+      password: hashedPassword,
     };
 
     // Adicionar o usuário ao banco de dados
