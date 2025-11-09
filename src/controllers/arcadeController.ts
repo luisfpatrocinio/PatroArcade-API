@@ -1,12 +1,14 @@
 import { Request, Response } from "express";
-import { getArcadeInfoById } from "../services/arcadeService";
+import { getArcadeInfoById } from "../services/arcadeService"; // Agora é async
 
-export const fetchArcadeInfoById = (req: Request, res: Response) => {
+// 1. Tornar a função 'async'
+export const fetchArcadeInfoById = async (req: Request, res: Response) => {
   const arcadeId = Number(req.params.arcadeId);
   console.log("Obtendo arcade: ", arcadeId);
 
   try {
-    const arcadeData = getArcadeInfoById(arcadeId);
+    // 2. Usar 'await'
+    const arcadeData = await getArcadeInfoById(arcadeId);
     res.status(200).json({ type: "arcadeData", content: arcadeData });
   } catch (error) {
     console.log(`Arcade de ID ${arcadeId} não encontrado.`);

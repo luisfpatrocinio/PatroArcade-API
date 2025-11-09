@@ -1,26 +1,31 @@
 import { ClientFullException } from "../exceptions/loginExceptions";
 import { clients } from "../main";
-import { playerDatabase } from "../models/playerDatabase";
-import { User, AdminUser, usersDatabase } from "../models/userModel";
+import { AppDataSource } from "../data-source"; 
+import { User } from "../entities/User"; 
+import { Player } from "../entities/Player"; 
 import { getClientById } from "./clientService";
 import bcrypt from "bcrypt";
+
+// Criar "Repositórios" (nossa porta de entrada para as tabelas)
+const userRepository = AppDataSource.getRepository(User);
+const playerRepository = AppDataSource.getRepository(Player);
 
 // Função que verifica se as credenciais são válidas
 export async function checkCredentials(
   username: string,
   passwordFromReq: string
 ): Promise<boolean> {
-
-  // Primeiro, encontre o usuário (de forma síncrona, já que é um array em memória)
-  const user = usersDatabase.find((u) => u.username === username);
+  // Buscamos no banco o usuário pelo username
+  const user = await userRepository.findOne({
+    where: { username: username },
+  });
 
   // Se o usuário não existir, retorne false
   if (!user) {
     return false;
   }
 
-  // Se o usuário existir, compare a senha da requisição com o HASH salvo
-  // A função bcrypt.compare faz a mágica de forma segura e assíncrona.
+  // Compara a senha da requisição com o HASH salvo no banco
   try {
     const isMatch = await bcrypt.compare(passwordFromReq, user.password);
     return isMatch;
@@ -30,36 +35,59 @@ export async function checkCredentials(
   }
 }
 
-export function getUserDataByUserName(username: string): User | AdminUser {
-  const user = usersDatabase.find((u) => u.username === username);
+export async function getUserDataByUserName(username: string): Promise<User> {
+  const user = await userRepository.findOne({
+    where: { username: username },
+  });
+
   if (!user) {
-    throw new Error(`User with username ${username} not found`);
+    throw new Error(`User com username ${username} não encontrado`);
   }
   return user;
 }
 
-export function getUserDataByEmail(email: string): User | AdminUser {
-  const user = usersDatabase.find((u) => u.email === email);
+export async function getUserDataByEmail(email: string): Promise<User> {
+  const user = await userRepository.findOne({ where: { email: email } });
   if (!user) {
-    throw new Error(`User with email ${email} not found`);
+    throw new Error(`User com email ${email} não encontrado`);
   }
   return user;
 }
 
-export function addUserToDatabase(user: Partial<User>): User {
+export async function addUserToDatabase(
+  user: Partial<User> // O user que vem do controller (username, email, password HASHED)
+): Promise<User> {
   console.log("Adicionando usuário ao banco de dados...");
-  const newUser: User = {
-    id: usersDatabase.length + 1, // ID é incremental e começa no 1
-    username: user.username!,
-    password: user.password!,
-    email: user.email!,
-    role: "player", // Novos usuários são sempre "player" por padrão
-  };
-  usersDatabase.push(newUser);
-  console.log(`Usuário ${newUser.username} adicionado com sucesso!`);
-  return newUser;
+
+  // Criamos uma instância da Entidade
+  const newUser = new User();
+  newUser.username = user.username!;
+  newUser.email = user.email!;
+  newUser.password = user.password!; // O controller já deve mandar o HASH
+  newUser.role = "player"; // Novos usuários são sempre "player" por padrão
+  newUser.arcades = null; // Definir como null por padrão
+
+  // Salvamos a entidade no banco
+  try {
+    const savedUser = await userRepository.save(newUser);
+    console.log(`Usuário ${savedUser.username} adicionado com sucesso!`);
+    return savedUser;
+  } catch (error: any) {
+    // Tratamento de erro (ex: username ou email duplicado)
+    if (error.code === "SQLITE_CONSTRAINT") {
+      if (error.message.includes("username")) {
+        throw new Error("Este nome de usuário já está em uso.");
+      }
+      if (error.message.includes("email")) {
+        throw new Error("Este email já está em uso.");
+      }
+    }
+    console.error("Erro ao salvar novo usuário:", error);
+    throw new Error("Erro ao registrar usuário.");
+  }
 }
 
+// Esta função não mexe com o banco de dados, então pode ficar síncrona
 export function isAlreadyConnected(userId: number): boolean {
   let _connected = false;
   // Percorre todos os clientes
@@ -72,8 +100,8 @@ export function isAlreadyConnected(userId: number): boolean {
   return _connected;
 }
 
+// Esta função também não mexe com o banco de dados
 export function isClientFull(clientId: number): boolean {
-  // Percorre todas as chaves do mapa clients, conferindo se o valor de id é igual ao clientId:
   var _client = getClientById(clientId);
   if (!_client) {
     throw new ClientFullException();
@@ -82,8 +110,12 @@ export function isClientFull(clientId: number): boolean {
   return _client.players.length >= 2;
 }
 
-export function userHasPlayer(userId: number): boolean {
-  // Percorre todos os players, conferindo se há um player com o mesmo userId
-  const players = playerDatabase; // Database de players
-  return players.some((player) => player.userId === userId);
+export async function userHasPlayer(userId: number): Promise<boolean> {
+  // 8. Agora consultamos a tabela Player pela relação com o User
+  const player = await playerRepository.findOne({
+    where: {
+      user: { id: userId }, // É assim que se consulta pela ID de uma relação
+    },
+  });
+  return !!player; // Retorna true se encontrar um player, false se não
 }

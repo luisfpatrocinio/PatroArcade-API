@@ -19,75 +19,72 @@ const upload = multer();
 export const tryToLogin = [
   upload.none(),
   async (req: Request, res: Response) => {
-    // Analisar credenciais recebidas
     const username = req.body.username;
     const password = req.body.password;
     const clientId = parseInt(req.params.clientId);
 
     console.log(`[LOGIN ATTEMPT]: ID: ${clientId} - ${username}.`);
 
-    // Verificar se os dados de login são válidos
     if (!username || !password || isNaN(clientId)) {
-      console.log("[LoginController] [tryToLogin] Dados de login inválidos.");
       return res.status(400).json({
         type: "loginFailed",
         content: "Dados de login inválidos.",
       });
     }
 
-    // Verificação JWT
     if (!process.env.JWT_SECRET) {
-      console.error(
-        "[LoginController] [tryToLogin] JWT_SECRET não está definido nas variáveis de ambiente."
-      );
+      console.error("[LoginController] JWT_SECRET não definido.");
       return res.status(500).json({
         type: "loginFailed",
         content: "Erro de configuração no servidor.",
       });
     }
 
-    // Tentar realizar o login
     try {
       const credentialsAreValid = await checkCredentials(username, password);
+
       if (credentialsAreValid) {
-        const userData = getUserDataByUserName(username);
+        // 1. (await) Buscar dados do usuário
+        const userData = await getUserDataByUserName(username);
         const userId = userData.id;
 
-        // Conexão com o Cliente Websocket
+        // Conexão com o Cliente Websocket (síncrono, pois mexe com o Map 'clients')
         connectPlayer(userId, clientId);
         addPlayerToClient(clientId, userId);
-        const playerData = getPlayerByUserId(userId);
+
+        // 2. (await) Buscar dados do jogador
+        const playerData = await getPlayerByUserId(userId);
 
         // Criar o payload do Token JWT
         const payload = {
           userId: userData.id,
           username: userData.username,
           role: userData.role,
+          playerId: playerData.id, // 3. IMPORTANTE: Adicionar o playerId ao Token!
         };
 
-        // Gerar (assinar) o token JWT
         const token = jwt.sign(payload, process.env.JWT_SECRET, {
-          expiresIn: "8h", // O token expira em 8 horas
+          expiresIn: "8h",
         });
 
-        // Cria objeto com tudo que o cliente precisa saber sobre o jogador
         const loginContent = {
           player: playerData,
           token: token,
         };
 
         sendWebSocketMessage(clientId, "playerJoined", loginContent);
-
         console.log(
-          `[LoginController] [tryToLogin] Player ${username} conectado com sucesso no cliente ${clientId}.`
+          `[LoginController] Player ${username} conectado no cliente ${clientId}.`
         );
 
-        if (!userHasPlayer(userId)) {
-          // Esse usuário é novo, e ainda não tem um jogador associado
-          // Retornar um erro específico para essa situação.
+        // 4. (await) Checar se o usuário tem jogador
+        // (Note que a função `getPlayerByUserId` acima já faria isso,
+        // mas é bom manter a verificação separada caso o login crie o player)
+        if (!(await userHasPlayer(userId))) {
+          // Lógica para caso o usuário exista mas o player não.
+          // (No nosso caso, o registerController já cuida disso)
         }
 
-        // Enviar o Token junto com os dados do jogador na resposta.
         res.status(200).json({
           type: "loginSuccess",
           content: loginContent,
@@ -97,18 +94,18 @@ export const tryToLogin = [
           type: "loginFailed",
           content: "Credenciais inválidas.",
         });
-        console.log(
-          `[LoginController] [tryToLogin] Falha no login para o jogador ${username}.`
-        );
       }
     } catch (error: any) {
-      // Tratamento de Erros
-      console.error(`[LoginController] [tryToLogin] ERROR: ${error.message}`);
+      console.error(`[LoginController] ERROR: ${error.message}`);
       if (error instanceof AppError) {
-        console.error(`[LoginController] [tryToLogin] ${error.message}`);
         res.status(error.statusCode).json({
           type: "loginFailed",
           content: error.message,
+        });
+      } else {
+        res.status(500).json({
+          type: "loginFailed",
+          content: error.message || "Erro interno no servidor.",
         });
       }
     }
