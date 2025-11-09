@@ -33,6 +33,9 @@ import { isAlreadyConnected, isClientFull } from "./services/userService";
 import { clientExists } from "./services/clientService";
 import { authMiddleware } from "./middleware/authMiddleware";
 
+// Importar o limiter
+import { limiter } from "./middleware/rateLimit";
+
 // Criar a instância do Express
 const app: Application = express();
 
@@ -40,6 +43,9 @@ const app: Application = express();
 app.use(express.json());
 app.use(cors({ origin: "*" }));
 app.use(bodyParser.json());
+
+// Aplicar o rate limiter globalmente
+app.use(limiter);
 
 // --- CONFIGURAÇÃO DE ROTAS ---
 
@@ -51,7 +57,6 @@ app.use("/leaderboard", leaderboardRoutes);
 app.use("/latestNews", newsRoutes);
 app.use("/games", gamesRoutes);
 app.use("/player", playerRoutes);
-
 
 // --- ROTAS PROTEGIDAS (Obrigatório ter um token JWT válido) ---
 app.use("/logout", logoutRoutes);
