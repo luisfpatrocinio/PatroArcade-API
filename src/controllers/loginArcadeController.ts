@@ -23,7 +23,7 @@ export async function tryToLoginArcade(req: Request, res: Response) {
     // Verifica se as credenciais são válidas.
     if (await checkCredentials(username, password)) {
       // Credenciais válidas. Checando se é um admin.
-      const user = getUserDataByUserName(username) as AdminUser;
+      const user = (await getUserDataByUserName(username)) as AdminUser;
       if (user.role !== "admin") {
         throw UserIsNotAdminException;
       }
