@@ -1,19 +1,33 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.userHasPlayer = exports.isClientFull = exports.isAlreadyConnected = exports.addUserToDatabase = exports.getUserDataByEmail = exports.getUserDataByUserName = exports.checkCredentials = void 0;
+const tslib_1 = require("tslib");
 const loginExceptions_1 = require("../exceptions/loginExceptions");
 const main_1 = require("../main");
 const playerDatabase_1 = require("../models/playerDatabase");
 const userModel_1 = require("../models/userModel");
 const clientService_1 = require("./clientService");
+const bcrypt_1 = tslib_1.__importDefault(require("bcrypt"));
 // Função que verifica se as credenciais são válidas
 function checkCredentials(username, passwordFromReq) {
-    const user = userModel_1.usersDatabase.find((u) => u.username === username && u.password === passwordFromReq);
-    // TODO: Implementar hash de senha para melhorar a segurança
-    // Sugestão: Usar bcrypt para hashear senhas antes de armazená-las
-    // Exemplo:
-    // Ex: await bcrypt.compare(password_from_req, user.passwordHash);
-    return !!user; // Retorna true se o usuário for encontrado, false caso contrário
+    return tslib_1.__awaiter(this, void 0, void 0, function* () {
+        // Primeiro, encontre o usuário (de forma síncrona, já que é um array em memória)
+        const user = userModel_1.usersDatabase.find((u) => u.username === username);
+        // Se o usuário não existir, retorne false
+        if (!user) {
+            return false;
+        }
+        // Se o usuário existir, compare a senha da requisição com o HASH salvo
+        // A função bcrypt.compare faz a mágica de forma segura e assíncrona.
+        try {
+            const isMatch = yield bcrypt_1.default.compare(passwordFromReq, user.password);
+            return isMatch;
+        }
+        catch (error) {
+            console.error("Erro ao comparar senhas:", error);
+            return false;
+        }
+    });
 }
 exports.checkCredentials = checkCredentials;
 function getUserDataByUserName(username) {

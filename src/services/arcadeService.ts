@@ -1,12 +1,19 @@
 import { disconnectPlayer } from "../app";
 import { clients } from "../main";
-import { arcadeDatabase, ArcadeInfo } from "../models/arcadeInfo";
-import { User } from "../models/userModel"; 
+import { AppDataSource } from "../data-source";
+import { Arcade } from "../entities/Arcade"; // Importar Entidade
+import { User } from "../entities/User"; // Importar Entidade
+import { In } from "typeorm"; // Importar o 'In' para consultas "WHERE ID IN (...)"
+
+// Repositórios
+const arcadeRepository = AppDataSource.getRepository(Arcade);
+const userRepository = AppDataSource.getRepository(User);
 
 export function updateArcadeIdentifier(id: number, clientTempId: string): void {
+  // Esta função mexe apenas com WebSockets, não com o banco.
+  // Está correta como está.
   const allClients = Array.from(clients.values());
 
-  // Enviar mensagem para todos os websockets do mapa clients.
   for (const client of allClients) {
     client.ws.send(
       JSON.stringify({
@@ -20,8 +27,9 @@ export function updateArcadeIdentifier(id: number, clientTempId: string): void {
   }
 }
 
-export function getArcadeInfoById(arcadeId: number): ArcadeInfo {
-  const arcade = arcadeDatabase.find((arcade) => arcade.id === arcadeId);
+// Tornar a função 'async' para buscar no banco
+export async function getArcadeInfoById(arcadeId: number): Promise<Arcade> {
+  const arcade = await arcadeRepository.findOneBy({ id: arcadeId });
   if (!arcade) {
     throw new Error("Arcade not found");
   }
@@ -31,39 +39,40 @@ export function getArcadeInfoById(arcadeId: number): ArcadeInfo {
 /**
  * Desconecta todos os jogadores associados a um determinado fliperama.
  * @param arcadeId O ID do fliperama.
- * @returns Um array com os dados dos jogadores que foram desconectados.
+ * @returns Um array com as ENTIDADES User dos jogadores que foram desconectados.
  */
-// MUDANÇA 1: Altere a assinatura da função para retornar um array de 'User'.
-// Se o seu tipo de jogador for diferente, substitua 'User[]' pelo tipo correto.
-export function disconnectArcadePlayers(arcadeId: number): User[] {
-    // MUDANÇA 2: Crie um array para armazenar os jogadores que serão removidos.
-    const disconnectedPlayers: User[] = [];
-  
-    // Percorrer os clients (a sua lógica original está correta):
-    const allClients = Array.from(clients.values());
+// Tornar a função 'async' e corrigir a lógica de retorno
+export async function disconnectArcadePlayers(arcadeId: number): Promise<User[]> {
+  const disconnectedPlayerIDs: number[] = []; // Estes são User IDs
 
-    for (const client of allClients) {
-      // Encontra a conexão do fliperama correto.
-      if (client.id === arcadeId) {
-        
-        // MUDANÇA 3: Antes de desconectar, adicione os jogadores à nossa lista.
-        // Usamos o operador 'spread' (...) para criar uma cópia e evitar problemas de referência.
-        disconnectedPlayers.push(...client.players);
-        
-        // Agora, percorra os jogadores para desconectá-los individualmente.
-        for (const player of client.players) {
-          // A função disconnectPlayer remove o jogador do estado global.
-          disconnectPlayer(player); 
-        }
-        
-        // Importante: Depois de desconectar, limpe o array de jogadores do fliperama.
-        client.players = [];
-  
-        // Como encontramos o fliperama, podemos parar o loop para otimização.
-        break; 
+  // 1. Encontrar o cliente e desconectar jogadores (síncrono, mexe no Map)
+  const allClients = Array.from(clients.values());
+  for (const client of allClients) {
+    // Encontra a conexão do fliperama correto.
+    if (client.id === arcadeId) {
+      // Copia os IDs dos jogadores (que são User IDs)
+      disconnectedPlayerIDs.push(...client.players);
+
+      // Desconecta cada jogador
+      for (const playerId of client.players) { // 'playerId' é o 'userId'
+        disconnectPlayer(playerId);
       }
+
+      // Limpa o array de jogadores do fliperama
+      client.players = [];
+      break;
     }
-  
-    // MUDANÇA 4: Retorne a lista de jogadores que foram coletados.
-    return disconnectedPlayers;
   }
+
+  // 2. Se não tinha ninguém conectado, retorna um array vazio
+  if (disconnectedPlayerIDs.length === 0) {
+    return [];
+  }
+
+  // 3. Busca no banco de dados os dados dos usuários que foram desconectados
+  const disconnectedUsers = await userRepository.findBy({
+    id: In(disconnectedPlayerIDs), // "WHERE id IN (1, 2, 5...)"
+  });
+
+  return disconnectedUsers;
+}

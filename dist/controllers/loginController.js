@@ -12,7 +12,7 @@ const clientService_1 = require("../services/clientService");
 const upload = (0, multer_1.default)();
 exports.tryToLogin = [
     upload.none(),
-    (req, res) => {
+    (req, res) => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
         // Analisar credenciais recebidas
         const username = req.body.username;
         const password = req.body.password;
@@ -36,7 +36,7 @@ exports.tryToLogin = [
         }
         // Tentar realizar o login
         try {
-            const credentialsAreValid = (0, userService_1.checkCredentials)(username, password);
+            const credentialsAreValid = yield (0, userService_1.checkCredentials)(username, password);
             if (credentialsAreValid) {
                 const userData = (0, userService_1.getUserDataByUserName)(username);
                 const userId = userData.id;
@@ -68,7 +68,7 @@ exports.tryToLogin = [
                 // Enviar o Token junto com os dados do jogador na resposta.
                 res.status(200).json({
                     type: "loginSuccess",
-                    content: loginContent
+                    content: loginContent,
                 });
             }
             else {
@@ -90,6 +90,6 @@ exports.tryToLogin = [
                 });
             }
         }
-    },
+    }),
 ];
 //# sourceMappingURL=loginController.js.map

@@ -1,14 +1,14 @@
 import { Router } from "express";
 import {
   getGameDatabyGameId,
-  getGamesData,
+  getAllGamesData,
 } from "../controllers/gameController";
 
 // Criar uma instância do Router
 const router = Router();
 
 // Rota para obter dados de um jogador específico
-router.get("/", getGamesData);
+router.get("/", getAllGamesData);
 router.get("/:gameId", getGameDatabyGameId);
 
 // Exportar o router usando um alias

@@ -42,8 +42,8 @@ app.use("/arcadeLogin", arcadeLoginRoutes_1.arcadeLoginRoutes);
 app.use("/leaderboard", leaderboardRoutes_1.leaderboardRoutes);
 app.use("/latestNews", newsRoutes_1.newsRoutes);
 app.use("/games", gamesRoutes_1.gamesRoutes);
-// --- ROTAS PROTEGIDAS (Obrigatório ter um token JWT válido) ---
 app.use("/player", playerRoutes_1.playerRoutes);
+// --- ROTAS PROTEGIDAS (Obrigatório ter um token JWT válido) ---
 app.use("/logout", logoutRoutes_1.logoutRoutes);
 app.use("/game", gameRoutes_1.gameRoutes);
 app.use("/save", authMiddleware_1.authMiddleware, saveRoutes_1.saveRoutes);

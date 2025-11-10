@@ -1,89 +1,116 @@
-// Serviços para Manipulação de Dados
+import { AppDataSource } from "../data-source";
+import { Player } from "../entities/Player";
+import { SaveData } from "../entities/SaveData";
+import { User } from "../entities/User";
 import { PlayerNotFoundError } from "../exceptions/appError";
-import { Player, playerDatabase } from "../models/playerDatabase";
-import { PlayerGameData, saveDatabase } from "../models/saveData";
-import { User } from "../models/userModel";
 
-// Retornar os dados de um jogaor específico
-export const getPlayerByName = (name: string) => {
-  return playerDatabase.find((player) => player.name === name);
-};
+// Repositórios
+const playerRepository = AppDataSource.getRepository(Player);
+const saveDataRepository = AppDataSource.getRepository(SaveData);
 
-// Gera um novo objeto de jogador, sem ID.
-export function generateNewPlayer(playerName: string): Partial<Player> {
-  const _newPlayer: Partial<Player> = {
-    name: playerName,
-    level: 1,
-    expPoints: 0,
-    totalScore: 0,
-    bio: "Novo Jogador",
-    coins: 0,
-    avatarIndex: 1,
-    colorIndex: 1,
-  };
-  return _newPlayer;
+/**
+ * Retorna os dados de um jogador pelo NOME.
+ */
+export async function getPlayerByName(name: string): Promise<Player | null> {
+  return playerRepository.findOne({ where: { name } });
 }
 
-// Adiciona um jogador ao banco de dados
-export function addPlayerToDatabase(playerData: Partial<Player>): void {
-  playerData.id = playerDatabase.length + 1;
-  const completePlayerData: Player = playerData as Player;
-  playerDatabase.push(completePlayerData);
-}
-
-export function getPlayerByUserId(userId: number): Player {
-  const player = playerDatabase.find((player) => player.userId === userId);
+/**
+ * Retorna os dados de um jogador pelo ID DO USUÁRIO.
+ * Esta é a principal forma de encontrar um jogador (ex: login, rota /me).
+ */
+export async function getPlayerByUserId(userId: number): Promise<Player> {
+  const player = await playerRepository.findOne({
+    where: { user: { id: userId } }, // Busca pela ID da relação User
+  });
   if (!player) {
-    throw new Error(`Player with userId ${userId} not found`);
+    throw new PlayerNotFoundError(); // Lança o erro customizado
   }
   return player;
 }
 
-export function obtainPlayerSaves(playerId: number): Array<PlayerGameData> {
-  // Verifica se o jogador existe
-  const player = playerDatabase.find((player) => player.userId === playerId);
+/**
+ * Retorna os dados de um jogador pelo ID DO JOGADOR (chave primária).
+ * Útil para a rota pública /player/:playerId
+ */
+export async function getPlayerByPlayerId(playerId: number): Promise<Player> {
+  const player = await playerRepository.findOne({
+    where: { id: playerId },
+  });
+  if (!player) {
+    throw new PlayerNotFoundError();
+  }
+  return player;
+}
+
+/**
+ * Cria um novo Player e o associa a um User.
+ * Esta função é chamada no registro de usuário.
+ */
+export async function createPlayerForUser(user: User): Promise<Player> {
+  console.log(`Criando perfil de jogador para ${user.username}...`);
+  const newPlayer = new Player();
+  newPlayer.name = user.username;
+  newPlayer.user = user;
+  // Os outros campos (level, bio, etc.) usarão os @Column({ default: ... })
+  // definidos na Entidade Player.
+
+  return playerRepository.save(newPlayer);
+}
+
+/**
+ * Obtém todos os saves de um jogador, com base no ID DO JOGADOR (chave primária).
+ */
+export async function obtainPlayerSaves(playerId: number): Promise<SaveData[]> {
+  // Primeiro, verifica se o jogador existe
+  const player = await playerRepository.findOneBy({ id: playerId });
   if (!player) {
     throw new PlayerNotFoundError();
   }
 
-  const saves = saveDatabase.filter((save) => save.playerId === playerId);
-  return saves;
+  // Se existe, busca os saves relacionados a ele
+  return saveDataRepository.find({
+    where: { player: { id: playerId } },
+    relations: {
+      game: true, // Traz as informações do Jogo junto com o Save
+    },
+  });
 }
 
-// Através das informações de um usuário, cria um novo Player.
-export function createPlayerForUser(user: Partial<User>) {
-  const newPlayer = generateNewPlayer(user.username!);
-  newPlayer.userId = user.id;
-  addPlayerToDatabase(newPlayer);
-}
+/**
+ * Atualiza a pontuação total de um jogador com base nos seus saves.
+ * Recebe o ID DO JOGADOR (chave primária).
+ */
+export async function updatePlayerTotalScore(
+  playerId: number
+): Promise<Player> {
+  console.log(`[updatePlayerScore] acionado para Player ID: ${playerId}`);
 
-// Essa função consulta todos os saves pertecentes a esse usuário, e ajusta o valor de totalScore com base nos scores de cada jogo.
-export const updatePlayerTotalScore = (playerId: number): Player => {
-  console.log("[updatePlayerScore] acionado");
-
-  try {
-    const player = getPlayerByUserId(playerId);
-    if (!player) {
-      throw new PlayerNotFoundError();
-    }
-
-    const saves = obtainPlayerSaves(playerId);
-    let totalScore = 0;
-
-    saves.forEach((save) => {
-      // conferir se há totalScore no save:
-      if (save.data.totalScore) {
-        totalScore += save.data.totalScore;
-      }
-    });
-
-    player.totalScore = totalScore;
-    return player;
-  } catch (err) {
-    console.error(
-      "[updatePlayerScore] Erro ao atualizar score do jogador: ",
-      (err as Error).message
-    );
-    throw err;
+  const player = await playerRepository.findOneBy({ id: playerId });
+  if (!player) {
+    throw new PlayerNotFoundError();
   }
-};
+
+  const saves = await obtainPlayerSaves(playerId);
+  let totalScore = 0;
+
+  saves.forEach((save) => {
+    // save.data é o JSON { highestScore: 500, totalScore: 1100, ... }
+    if (save.data && save.data.totalScore) {
+      totalScore += save.data.totalScore;
+    }
+  });
+
+  player.totalScore = totalScore;
+  return playerRepository.save(player);
+}
+
+/**
+ * Retorna todos os jogadores do banco de dados. (Rota de Admin)
+ */
+export async function getAllPlayers(): Promise<Player[]> {
+  return playerRepository.find();
+}
+
+// As funções antigas 'generateNewPlayer' e 'addPlayerToDatabase'
+// foram substituídas pela 'createPlayerForUser' que faz o trabalho completo.

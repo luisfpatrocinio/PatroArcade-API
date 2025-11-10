@@ -1,43 +1,55 @@
 import { Request, Response } from "express";
-import { PlayerGameData, saveDatabase } from "../models/saveData";
-import { getPlayerDataById } from "../services/scoreService";
+import { AppDataSource } from "../data-source";
+import { SaveData } from "../entities/SaveData";
+
+// Obter o repositório para a tabela SaveData
+const saveDataRepository = AppDataSource.getRepository(SaveData);
 
 export async function getGameLeaderboardRequest(req: Request, res: Response) {
   try {
     const gameId = Number(req.params.gameId);
-    console.log(`[getGameLeaderboardRequest] gameId: ${gameId}`);
-
-    // Fail fast: se o gameId não for um número, retornar erro 400.
     if (isNaN(gameId)) {
       return res.status(400).json({ error: "Invalid gameId parameter" });
     }
 
-    // Filtrar os dados do jogo correto.
-    const gameSaves = saveDatabase.filter(
-      (save: PlayerGameData) => save.gameId === gameId
-    );
+    console.log(`[getGameLeaderboardRequest] gameId: ${gameId}`);
 
-    // Caso não haja dados para o gameId, retornar erro 404.
-    if (gameSaves.length === 0) {
+    // 1. Buscar no BANCO DE DADOS
+    // Encontre todos os saves para este 'gameId'
+    // Ordene por 'data.highestScore' em ordem decrescente
+    // Pegue apenas os 10 primeiros
+    // E traga as informações do 'player' relacionadas
+    const gameSaves = await saveDataRepository.find({
+      where: { game: { id: gameId } },
+      relations: {
+        player: true, // Isso faz o JOIN com a tabela Player
+      },
+      order: {
+        data: {
+          highestScore: "DESC", // Ordena pelo sub-campo 'highestScore' do JSON 'data'
+        } as any, // 'as any' é necessário para ordenar por campos JSON aninhados
+      },
+      take: 10, // Limita a 10 resultados
+    });
+
+    // 2. Caso não haja dados
+    if (!gameSaves || gameSaves.length === 0) {
       return res.status(404).json({ message: "No data found for this gameId" });
     }
 
-    // Ordenar por score.
-    gameSaves.sort((a, b) => b.data.highestScore - a.data.highestScore);
-
-    // Mapear para retornar apenas playerName e highestScore.
+    // 3. Mapear os resultados para o formato desejado
     const leaderboard = gameSaves.map((save) => {
-      // Para cada save, obter o nome do jogador.
-      const playerData = getPlayerDataById(save.playerId);
+      // Como pedimos 'relations: { player: true }', 'save.player' existe
       return {
-        playerName: playerData ? playerData.name : "Desconhecido",
-        highestScore: save.data.highestScore,
+        playerName: save.player ? save.player.name : "Desconhecido",
+        highestScore: save.data.highestScore || 0, // Garante que o score exista
       };
     });
 
-    // Retornar os 10 primeiros.
-    res.status(200).json(leaderboard.slice(0, 10));
-  } catch (error) {
+    // 4. Retornar o leaderboard
+    res.status(200).json(leaderboard);
+  } catch (error: any) {
+    console.error("[getGameLeaderboardRequest] Erro:", error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 }
