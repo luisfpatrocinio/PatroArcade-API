@@ -1,91 +1,124 @@
 # PatroArcade API
 
-PatroArcade is the backend server for an online arcade system, developed as part of a TCC (undergraduate thesis) project. This API manages arcade information, connected players, and their save data, providing a robust platform for online arcade experiences.
+PatroArcade é o servidor backend para um sistema de fliperama online, desenvolvido como parte de um projeto de TCC. Esta API gerencia informações dos fliperamas, jogadores conectados e seus dados salvos, fornecendo uma plataforma robusta para experiências de fliperama online.
 
 ## Features
 
-- **Arcade Management:** Handles data for multiple arcades, including game lists and arcade info.
-- **Player Management:** Registers, authenticates, and tracks players, including login/logout and user profiles.
-- **Save Data:** Stores and retrieves player save data for games.
-- **Leaderboards:** Manages and displays high scores and rankings.
-- **News & Updates:** Provides news endpoints for arcade announcements.
-- **Rate Limiting:** Middleware to protect endpoints from abuse.
+- **Gerenciamento de Usuários:** Registro, autenticação e perfis de jogador.
+- **Segurança de Senha:** As senhas são protegidas usando hashing `bcrypt`.
+- **Persistência de Dados:** Armazena e recupera dados de save, pontuações e perfis de um banco de dados persistente.
+- **Leaderboards:** Gerencia e exibe pontuações mais altas por jogo.
+- **Validação de Entrada:** Usa `express-validator` para proteger rotas contra dados maliciosos.
+- **Proteção de API:** Inclui `rate-limit` para proteger os endpoints contra abuso.
+- **Notícias e Atualizações:** Fornece endpoints de notícias para anúncios do fliperama.
 
-## Technologies
+## Tecnologias
 
-- **Node.js** with **TypeScript**
-- **Express.js** for HTTP server and routing
-- **SQLite** (via `database.db`) for persistent storage
-- **TypeORM** for database management
-- **RESTful API** design
+- **Node.js** com **TypeScript**
+- **Express.js** para o servidor HTTP e roteamento
+- **PostgreSQL** (Hospedado no [Neon](https://neon.tech/)) para armazenamento persistente.
+- **TypeORM** para gerenciamento do banco de dados e ORM.
+- **WebSockets** (`ws`) para comunicação em tempo real com clientes (fliperamas).
+- Design de **API RESTful**
 
-## Project Structure
+## Estrutura do Projeto
 
 ```
 src/
-  app.ts                # Express app setup
-  main.ts               # Server entry point
-  data-source.ts        # Database connection
-  controllers/          # Request handlers for each feature
-  entities/             # Database models (e.g., User)
-  exceptions/           # Custom error handling
-  middleware/           # Rate limiting and other middlewares
-  models/               # Data models for arcade, game, player, etc.
-  routes/               # API route definitions
-  services/             # Business logic for each feature
-database.db             # SQLite database file
-tsconfig.json           # TypeScript configuration
-package.json            # Project dependencies and scripts
+  app.ts                # Configuração do app Express e middlewares
+  main.ts               # Ponto de entrada do servidor (HTTP e WebSocket) e script de seed
+  data-source.ts        # Configuração da conexão do TypeORM (PostgreSQL)
+  controllers/          # Lógica de manipulação de requisições (Request Handlers)
+  entities/             # Entidades do TypeORM (Modelos do banco de dados)
+  exceptions/           # Classes de erro customizadas
+  middleware/           # Middlewares (auth, admin, rate-limit)
+  models/               # Modelos de dados legados (usados para o seed do banco)
+  routes/               # Definições das rotas da API
+  services/             # Lógica de negócios
+.env.example            # Arquivo de exemplo para variáveis de ambiente
+package.json            # Dependências do projeto e scripts
+tsconfig.json           # Configuração do TypeScript
 ```
 
-## Getting Started
+## Começando
 
-### Prerequisites
+### Pré-requisitos
 
-- Node.js (v16+ recommended)
-- npm (comes with Node.js)
-- SQLite (database file included)
+- Node.js (v16+ recomendado)
+- npm (vem com o Node.js)
+- Um banco de dados **PostgreSQL**. (Recomendado criar uma conta gratuita no [Neon](https://neon.tech/)).
 
-### Installation
+### Instalação e Configuração
 
-1. Clone the repository:
+1.  Clone o repositório:
 
-   ```powershell
-   git clone https://github.com/luisfpatrocinio/patroArcadeServer.git
-   cd patroArcadeServer
-   ```
+    ```bash
+    git clone https://github.com/luisfpatrocinio/patroArcadeServer.git
+    cd patroArcadeServer
+    ```
 
-2. Install dependencies:
+2.  Instale as dependências:
 
-   ```powershell
-   npm install
-   ```
+    ```bash
+    npm install
+    ```
 
-3. Start the server:
-   ```powershell
-   npm run start
-   ```
-   The server will run on the default port (check `main.ts` for configuration).
+3.  **Crie seu arquivo `.env`:**
+    Copie o conteúdo do `.env.example` para um novo arquivo chamado `.env`.
 
-### API Endpoints
+    ```bash
+    cp .env.example .env
+    ```
 
-- `/arcades` - List and manage arcades
-- `/players` - Register, login, logout, and manage players
-- `/games` - Game information and save data
-- `/leaderboard` - View and update leaderboards
-- `/news` - Get arcade news and updates
+    Você **precisa** preencher as variáveis no arquivo `.env`:
 
-See the `src/routes/` folder for detailed route definitions.
+    - `DATABASE_URL`: A URL de conexão do seu banco de dados PostgreSQL (ex: do Neon).
+    - `JWT_SECRET`: Uma string secreta longa para assinar seus tokens JWT.
 
-## Contributing
+### Executando o Servidor
 
-Contributions are welcome! Please fork the repository and submit a pull request. For major changes, open an issue first to discuss what you would like to change.
+**Para Desenvolvimento (com hot-reload):**
 
-## License
+```bash
+npm run dev
+```
 
-This project is for academic purposes (TCC) and is open for learning and collaboration.
+*(Isso usa `ts-node` para executar `src/main.ts`. Na primeira vez, ele também executará o script de *seed* no seu banco Neon.)*
 
-## Author
+**Para Produção:**
 
-- **Luis F. Patrocínio**  
+```bash
+# 1. Compilar o TypeScript para JavaScript
+npm run build
+
+# 2. Iniciar o servidor compilado
+npm run start
+```
+
+_(Isso executa `node dist/main.js`.)_
+
+### Endpoints Principais da API
+
+- `/register`: (POST) Registra um novo usuário.
+- `/login`: (POST) Autentica um usuário e retorna um token JWT.
+- `/player/me`: (GET) Obtém o perfil do jogador autenticado.
+- `/player/:playerId`: (GET) Obtém o perfil público de qualquer jogador.
+- `/save/me/:gameId`: (POST) Salva dados do jogo para o jogador autenticado.
+- `/games`: (GET) Lista todos os jogos disponíveis.
+- `/leaderboard/:gameId`: (GET) Exibe o ranking de um jogo.
+- `/latestNews`: (GET) Obtém as últimas notícias.
+
+(Veja a pasta `src/routes/` para todas as definições de rotas.)
+
+## Contribuições
+
+Contribuições são bem-vindas\! Por favor, faça um fork do repositório e envie um pull request. Para mudanças maiores, abra uma _issue_ primeiro para discutir o que você gostaria de mudar.
+
+## Licença
+
+Este projeto é para fins acadêmicos (TCC) e está aberto para aprendizado e colaboração.
+
+## Autor
+
+- **Luis F. Patrocínio**
   [GitHub](https://github.com/luisfpatrocinio)
