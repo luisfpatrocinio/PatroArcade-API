@@ -3,6 +3,15 @@ import { WebSocket } from "ws";
 
 export function clientExists(clientId: number): boolean {
   let _exists = false;
+
+  console.log(`[DEBUG] Verificando se Arcade ${clientId} existe...`);
+  console.log(`[DEBUG] Clientes conectados atualmente:`);
+  clients.forEach((client, key) => {
+    console.log(
+      ` - Key interna: ${key} | Arcade ID Definido: ${client.id} | Players: ${client.players.length}`
+    );
+  });
+
   for (const client of clients.values()) {
     if (client.id == clientId) {
       _exists = true;

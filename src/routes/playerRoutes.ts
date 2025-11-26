@@ -19,12 +19,7 @@ router.get("/me", authMiddleware, getMyPlayerData);
 router.get("/:playerId", getPlayerData); // Esta é pública agora
 router.get("/me/saves", authMiddleware, getPlayerAllSaves);
 
-// Admin protected route
-router.get(
-  "/:playerId/saves",
-  authMiddleware,
-  adminAuthMiddleware,
-  getPlayerAllSaves
-);
+// Public Route
+router.get("/:playerId/saves", getPlayerAllSaves);
 
 export { router as playerRoutes };
