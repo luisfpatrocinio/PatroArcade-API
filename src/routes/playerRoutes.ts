@@ -6,7 +6,6 @@ import {
   getMyPlayerData,
 } from "../controllers/playerController";
 import { authMiddleware } from "../middleware/authMiddleware";
-import { adminAuthMiddleware } from "../middleware/adminAuthMiddleware";
 
 const router = Router();
 
