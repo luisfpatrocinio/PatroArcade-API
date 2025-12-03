@@ -39,6 +39,11 @@ import { limiter } from "./middleware/rateLimit";
 // Criar a instância do Express
 const app: Application = express();
 
+// Importar Passport
+import passport from "passport";
+import "./services/authService"; // Importa a configuração que criamos
+import { authRoutes } from "./routes/authRoutes";
+
 // Middleware de limitação de requisições
 app.use(express.json());
 app.use(cors({ origin: "*" }));
@@ -46,6 +51,9 @@ app.use(bodyParser.json());
 
 // Aplicar o rate limiter globalmente
 app.use(limiter);
+
+// Inicializar o Passport
+app.use(passport.initialize());
 
 // --- CONFIGURAÇÃO DE ROTAS ---
 
@@ -63,6 +71,9 @@ app.use("/logout", logoutRoutes);
 app.use("/game", gameRoutes);
 app.use("/save", authMiddleware, saveRoutes);
 app.use("/arcade", arcadeRoutes);
+
+// --- ROTAS DE AUTENTICAÇÃO ---
+app.use("/auth", authRoutes);
 
 // Rota de debug (apenas em ambiente de desenvolvimento)
 app.use("/debug", debugRoutes);

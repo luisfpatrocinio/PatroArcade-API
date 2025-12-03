@@ -1,5 +1,5 @@
 import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from "typeorm";
-import { Player } from "./Player"; 
+import { Player } from "./Player";
 
 @Entity()
 export class User {
@@ -12,8 +12,11 @@ export class User {
   @Column({ unique: true }) // Email deve ser único
   email: string;
 
-  @Column()
-  password: string; // Hash da senha
+  @Column({ nullable: true }) // aceita nulo para autenticação via Google
+  password: string;
+
+  @Column({ nullable: true, unique: true }) // ID do Google
+  googleId: string;
 
   @Column()
   role: "admin" | "player";
