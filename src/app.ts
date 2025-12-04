@@ -30,6 +30,9 @@ import { gamesRoutes } from "./routes/gamesRoutes";
 import { registerRoutes } from "./routes/registerRoutes";
 import { arcadeRoutes } from "./routes/arcadeRoutes";
 
+// Importar Passport
+import { authRoutes } from "./routes/authRoutes";
+
 // Importações que não deviam estar aqui:
 import { clients } from "./main";
 import { isAlreadyConnected, isClientFull } from "./services/userService";
@@ -42,8 +45,7 @@ import { limiter } from "./middleware/rateLimit";
 // Criar a instância do Express
 const app: Application = express();
 
-// Importar Passport
-import { authRoutes } from "./routes/authRoutes";
+app.set("trust proxy", 1);
 
 // Middleware de limitação de requisições
 app.use(express.json());

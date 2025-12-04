@@ -3,6 +3,12 @@ import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import { AppDataSource } from "../data-source";
 import { User } from "../entities/User";
 import { createPlayerForUser } from "./playerService";
+import dotenv from "dotenv";
+
+dotenv.config();
+
+// Define a URL base da API.
+const apiUrl = process.env.API_URL || "http://localhost:3001";
 
 const userRepository = AppDataSource.getRepository(User);
 
@@ -11,7 +17,7 @@ passport.use(
         {
             clientID: process.env.GOOGLE_CLIENT_ID || "",
             clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
-            callbackURL: "/auth/google/callback",
+            callbackURL: `${apiUrl}/auth/google/callback`,
         },
         async (accessToken, refreshToken, profile, done) => {
             try {
