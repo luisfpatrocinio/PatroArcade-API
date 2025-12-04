@@ -14,9 +14,7 @@ interface DecodedJwtPayload extends JwtPayload {
 // Extend Express Request to include 'user' property with JWT payload
 declare global {
   namespace Express {
-    interface Request {
-      user?: DecodedJwtPayload; // <- Agora 'user' tem a estrutura acima
-    }
+    interface User extends DecodedJwtPayload { }
   }
 }
 
@@ -45,10 +43,10 @@ export const authMiddleware = (
 
     // 2. Validação extra: garantir que os campos esperados estão no token
     if (!decodedPayload.userId || !decodedPayload.playerId || !decodedPayload.role) {
-         return res.status(403).json({
-            type: "forbidden",
-            content: "Token inválido (malformado). Por favor, faça login novamente.",
-        });
+      return res.status(403).json({
+        type: "forbidden",
+        content: "Token inválido (malformado). Por favor, faça login novamente.",
+      });
     }
 
     // 3. Adiciona o payload decodificado (com userId, playerId, role) ao req.user

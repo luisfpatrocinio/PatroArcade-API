@@ -3,8 +3,11 @@ import express, { Application } from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
 
-// Importar Middleware de Autenticação
-// import { authMiddleware } from "./middleware/authMiddleware"; // Desativado temporariamente
+// Importar Passport
+import passport from "passport";
+
+// Importar AuthService
+import "./services/authService";
 
 // Importar exceções:
 import {
@@ -40,8 +43,6 @@ import { limiter } from "./middleware/rateLimit";
 const app: Application = express();
 
 // Importar Passport
-import passport from "passport";
-import "./services/authService"; // Importa a configuração que criamos
 import { authRoutes } from "./routes/authRoutes";
 
 // Middleware de limitação de requisições
