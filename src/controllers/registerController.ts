@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { validationResult } from "express-validator";
+
 import {
   AddUserToDatabase,
   GetUserDataByUserName,
@@ -11,13 +11,7 @@ import bcrypt from "bcrypt"; // Importar bcrypt para o HASH
 
 export async function RegisterUser(req: Request, res: Response) {
   // Adicionar verificação de erros de validação
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    // Se houver erros, retorna 400 com a lista de erros
-    return res
-      .status(400)
-      .json({ type: "registerFailed", content: errors.array() });
-  }
+
 
   console.log("Registrando usuário...");
   const { username, email, password, confirmPassword } = req.body;

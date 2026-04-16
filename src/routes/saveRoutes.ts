@@ -1,5 +1,6 @@
 import { Router } from "express";
-import { body } from "express-validator";
+import { ValidateSchema } from "../middleware/validateSchema";
+import { SaveDataSchema, RichPresenceSchema } from "../validators/saveValidator";
 import {
   GetPlayerSaveData,
   GetSaveDatas,
@@ -18,31 +19,14 @@ router.get("/me/:gameId", authMiddleware, GetPlayerSaveData);
 router.post(
   "/me/:gameId",
   authMiddleware, // A rota de save DEVE ser protegida
-  [
-    // Verifica se o 'body' (que é o 'data' do save) é um objeto JSON
-    body().isObject().withMessage("Os dados de save devem ser um objeto JSON."),
-    // Exemplo de validação mais profunda (opcional, mas bom):
-    // body("highestScore")
-    //   .optional() // O campo pode não existir
-    //   .isNumeric()
-    //   .withMessage("highestScore deve ser um número."),
-  ],
+    ValidateSchema(SaveDataSchema),
   SavePlayerData
 );
 
 router.post(
   "/me/UpdateRichPresence/:gameId",
   authMiddleware, // A rota de rich presence também
-  [
-    // Validar o richPresenceText
-    body("richPresenceText")
-      .notEmpty()
-      .withMessage("richPresenceText não pode estar vazio.")
-      .isString()
-      .withMessage("richPresenceText deve ser texto.")
-      .trim()
-      .escape(),
-  ],
+    ValidateSchema(RichPresenceSchema),
   UpdateRichPresence
 );
 

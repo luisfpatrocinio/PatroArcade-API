@@ -40,7 +40,7 @@ import { ClientExists } from "./services/clientService";
 import { authMiddleware } from "./middleware/authMiddleware";
 
 // Importar o limiter
-import { limiter } from "./middleware/rateLimit";
+import { limiter, authLimiter } from "./middleware/rateLimit";
 
 // Criar a instância do Express
 const app: Application = express();
@@ -61,8 +61,8 @@ app.use(passport.initialize());
 // --- CONFIGURAÇÃO DE ROTAS ---
 
 // --- ROTAS PÚBLICAS (Não precisam de token) ---
-app.use("/login", loginRoutes);
-app.use("/register", registerRoutes);
+app.use("/login", authLimiter, loginRoutes);
+app.use("/register", authLimiter, registerRoutes);
 app.use("/arcadeLogin", arcadeLoginRoutes);
 app.use("/leaderboard", leaderboardRoutes);
 app.use("/latestNews", newsRoutes);
@@ -76,7 +76,7 @@ app.use("/save", authMiddleware, saveRoutes);
 app.use("/arcade", arcadeRoutes);
 
 // --- ROTAS DE AUTENTICAÇÃO ---
-app.use("/auth", authRoutes);
+app.use("/auth", authLimiter, authRoutes);
 
 // Rota de debug (apenas em ambiente de desenvolvimento)
 app.use("/debug", debugRoutes);

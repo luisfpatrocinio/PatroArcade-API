@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { validationResult } from "express-validator";
+
 import {
   FindSaveData,
   GenerateNewSaveDataShell, // Mudamos o nome da função no service
@@ -71,12 +71,7 @@ export async function GetSaveDatas(req: Request, res: Response) {
 // Rota de Jogador (/me/:gameId) - 100% segura
 export async function SavePlayerData(req: Request, res: Response) {
   // Verificar erros de validação do express-validator
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res
-      .status(400)
-      .json({ type: "playerSaveFailed", content: errors.array() });
-  }
+
 
   // 1. O ID do Player vem do TOKEN JWT (graças ao authMiddleware)
   const playerId = req.user!.playerId;
@@ -163,12 +158,7 @@ export async function SavePlayerData(req: Request, res: Response) {
 // Rota de Jogador (/me/UpdateRichPresence/:gameId)
 export async function UpdateRichPresence(req: Request, res: Response) {
   // Adicionar verificação de erros de validação
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res
-      .status(400)
-      .json({ type: "richPresenceFailed", content: errors.array() });
-  }
+
 
   const playerId = req.user!.playerId; // ID do Player vindo do Token
   const gameId = Number(req.params.gameId);
