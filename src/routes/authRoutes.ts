@@ -1,9 +1,9 @@
 import { Router } from "express";
 import passport from "passport";
 import jwt from "jsonwebtoken";
-import { getPlayerByUserId } from "../services/playerService";
-import { connectPlayer } from "../app"; // Importar função de conexão do app
-import { addPlayerToClient, sendWebSocketMessage } from "../services/clientService"; // Importar serviços de socket
+import { GetPlayerByUserId } from "../services/playerService";
+import { ConnectPlayer } from "../app"; // Importar função de conexão do app
+import { AddPlayerToClient, SendWebSocketMessage } from "../services/clientService"; // Importar serviços de socket
 
 const router = Router();
 
@@ -31,7 +31,7 @@ router.get(
         const clientIdString = req.query.state as string;
 
         try {
-            const player = await getPlayerByUserId(user.id);
+            const player = await GetPlayerByUserId(user.id);
 
             const payload = {
                 userId: user.id,
@@ -53,10 +53,10 @@ router.get(
                         console.log(`[Google Auth] Tentando conectar Player ${user.username} ao Cliente ${clientId}...`);
 
                         // 1. Conecta logicamente
-                        connectPlayer(user.id, clientId);
+                        ConnectPlayer(user.id, clientId);
 
                         // 2. Adiciona à lista do cliente
-                        addPlayerToClient(clientId, user.id);
+                        AddPlayerToClient(clientId, user.id);
 
                         // 3. Prepara payload para o jogo (Godot)
                         const loginContent = {
@@ -65,7 +65,7 @@ router.get(
                         };
 
                         // 4. Envia mensagem via WebSocket para o jogo
-                        sendWebSocketMessage(clientId, "playerJoined", loginContent);
+                        SendWebSocketMessage(clientId, "playerJoined", loginContent);
 
                         console.log(`[Google Auth] Sucesso! Player enviado para o jogo.`);
                     } catch (wsError) {

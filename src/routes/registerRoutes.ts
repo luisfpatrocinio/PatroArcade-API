@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { registerUser } from "../controllers/registerController";
+import { RegisterUser } from "../controllers/registerController";
 import { body } from "express-validator";
 
 // Criar uma instância do Router
@@ -19,7 +19,7 @@ router.post(
       .isLength({ min: 6 })
       .withMessage("Senha precisa ter no mínimo 6 caracteres."),
   ],
-  registerUser // O controller só roda se a validação passar
+  RegisterUser // O controller só roda se a validação passar
 );
 
 export { router as registerRoutes };

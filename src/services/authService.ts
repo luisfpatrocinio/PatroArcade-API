@@ -2,7 +2,7 @@ import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import { AppDataSource } from "../data-source";
 import { User } from "../entities/User";
-import { createPlayerForUser } from "./playerService";
+import { CreatePlayerForUser } from "./playerService";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -47,7 +47,7 @@ passport.use(
                     newUser.password = ""; // Sem senha
 
                     user = await userRepository.save(newUser);
-                    await createPlayerForUser(user); // Cria o perfil de jogador
+                    await CreatePlayerForUser(user); // Cria o perfil de jogador
                 }
 
                 return done(null, user as any);

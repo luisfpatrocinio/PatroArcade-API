@@ -1,8 +1,8 @@
 import { clients } from "../main";
 import { WebSocket } from "ws";
 
-export function clientExists(clientId: number): boolean {
-  let _exists = false;
+export function ClientExists(clientId: number): boolean {
+  let exists = false;
 
   console.log(`[DEBUG] Verificando se Arcade ${clientId} existe...`);
   console.log(`[DEBUG] Clientes conectados atualmente:`);
@@ -14,14 +14,14 @@ export function clientExists(clientId: number): boolean {
 
   for (const client of clients.values()) {
     if (client.id == clientId) {
-      _exists = true;
+      exists = true;
       return true;
     }
   }
-  return _exists;
+  return exists;
 }
 
-export function getClientById(clientId: number) {
+export function GetClientById(clientId: number) {
   for (const client of clients.values()) {
     if (client.id == clientId) {
       return client;
@@ -30,7 +30,7 @@ export function getClientById(clientId: number) {
   return null;
 }
 
-export function sendWebSocketMessage(
+export function SendWebSocketMessage(
   clientId: number,
   type: string,
   content: any
@@ -43,8 +43,8 @@ export function sendWebSocketMessage(
   });
 }
 
-export function addPlayerToClient(clientId: number, userId: number) {
-  const client = getClientById(clientId);
+export function AddPlayerToClient(clientId: number, userId: number) {
+  const client = GetClientById(clientId);
   if (client) {
     client.players.push(userId);
   }

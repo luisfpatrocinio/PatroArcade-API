@@ -1,10 +1,10 @@
 import { Router } from "express";
 import { body } from "express-validator";
 import {
-  getPlayerSaveData,
-  getSaveDatas,
-  savePlayerData,
-  updateRichPresence,
+  GetPlayerSaveData,
+  GetSaveDatas,
+  SavePlayerData,
+  UpdateRichPresence,
 } from "../controllers/saveController";
 import { adminAuthMiddleware } from "../middleware/adminAuthMiddleware";
 import { authMiddleware } from "../middleware/authMiddleware";
@@ -12,7 +12,7 @@ import { authMiddleware } from "../middleware/authMiddleware";
 const router = Router();
 
 // --- Rotas do Jogador (Godot) ---
-router.get("/me/:gameId", authMiddleware, getPlayerSaveData);
+router.get("/me/:gameId", authMiddleware, GetPlayerSaveData);
 
 // Adicionar validação para o 'body'
 router.post(
@@ -27,11 +27,11 @@ router.post(
     //   .isNumeric()
     //   .withMessage("highestScore deve ser um número."),
   ],
-  savePlayerData
+  SavePlayerData
 );
 
 router.post(
-  "/me/updateRichPresence/:gameId",
+  "/me/UpdateRichPresence/:gameId",
   authMiddleware, // A rota de rich presence também
   [
     // Validar o richPresenceText
@@ -43,16 +43,16 @@ router.post(
       .trim()
       .escape(),
   ],
-  updateRichPresence
+  UpdateRichPresence
 );
 
 // --- Rotas do Admin (Para o Webserver) ---
-router.get("/", authMiddleware, adminAuthMiddleware, getSaveDatas);
+router.get("/", authMiddleware, adminAuthMiddleware, GetSaveDatas);
 router.get(
   "/:playerId/:gameId",
   authMiddleware,
   adminAuthMiddleware,
-  getPlayerSaveData
+  GetPlayerSaveData
 );
 
 export { router as saveRoutes };

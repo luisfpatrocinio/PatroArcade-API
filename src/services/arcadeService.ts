@@ -1,4 +1,4 @@
-import { disconnectPlayer } from "../app";
+import { DisconnectPlayer } from "../app";
 import { clients } from "../main";
 import { AppDataSource } from "../data-source";
 import { Arcade } from "../entities/Arcade"; // Importar Entidade
@@ -9,7 +9,7 @@ import { In } from "typeorm"; // Importar o 'In' para consultas "WHERE ID IN (..
 const arcadeRepository = AppDataSource.getRepository(Arcade);
 const userRepository = AppDataSource.getRepository(User);
 
-export function updateArcadeIdentifier(id: number, clientTempId: string): void {
+export function UpdateArcadeIdentifier(id: number, clientTempId: string): void {
   // Esta função mexe apenas com WebSockets, não com o banco.
   // Está correta como está.
   const allClients = Array.from(clients.values());
@@ -28,7 +28,7 @@ export function updateArcadeIdentifier(id: number, clientTempId: string): void {
 }
 
 // Tornar a função 'async' para buscar no banco
-export async function getArcadeInfoById(arcadeId: number): Promise<Arcade> {
+export async function GetArcadeInfoById(arcadeId: number): Promise<Arcade> {
   const arcade = await arcadeRepository.findOneBy({ id: arcadeId });
   if (!arcade) {
     throw new Error("Arcade not found");
@@ -42,7 +42,7 @@ export async function getArcadeInfoById(arcadeId: number): Promise<Arcade> {
  * @returns Um array com as ENTIDADES User dos jogadores que foram desconectados.
  */
 // Tornar a função 'async' e corrigir a lógica de retorno
-export async function disconnectArcadePlayers(arcadeId: number): Promise<User[]> {
+export async function DisconnectArcadePlayers(arcadeId: number): Promise<User[]> {
   const disconnectedPlayerIDs: number[] = []; // Estes são User IDs
 
   // 1. Encontrar o cliente e desconectar jogadores (síncrono, mexe no Map)
@@ -55,7 +55,7 @@ export async function disconnectArcadePlayers(arcadeId: number): Promise<User[]>
 
       // Desconecta cada jogador
       for (const playerId of client.players) { // 'playerId' é o 'userId'
-        disconnectPlayer(playerId);
+        DisconnectPlayer(playerId);
       }
 
       // Limpa o array de jogadores do fliperama

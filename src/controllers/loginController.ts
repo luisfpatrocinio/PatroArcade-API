@@ -1,22 +1,22 @@
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import {
-  checkCredentials,
-  getUserDataByUserName,
-  userHasPlayer,
+  CheckCredentials,
+  GetUserDataByUserName,
+  UserHasPlayer,
 } from "../services/userService";
-import { connectPlayer } from "../app";
-import { getPlayerByUserId } from "../services/playerService";
+import { ConnectPlayer } from "../app";
+import { GetPlayerByUserId } from "../services/playerService";
 import AppError from "../exceptions/appError";
 import multer from "multer";
 import {
-  addPlayerToClient,
-  sendWebSocketMessage,
+  AddPlayerToClient,
+  SendWebSocketMessage,
 } from "../services/clientService";
 
 const upload = multer();
 
-export const tryToLogin = [
+export const TryToLogin = [
   upload.none(),
   async (req: Request, res: Response) => {
     const username = req.body.username;
@@ -41,19 +41,19 @@ export const tryToLogin = [
     }
 
     try {
-      const credentialsAreValid = await checkCredentials(username, password);
+      const credentialsAreValid = await CheckCredentials(username, password);
 
       if (credentialsAreValid) {
         // 1. (await) Buscar dados do usuário
-        const userData = await getUserDataByUserName(username);
+        const userData = await GetUserDataByUserName(username);
         const userId = userData.id;
 
         // Conexão com o Cliente Websocket (síncrono, pois mexe com o Map 'clients')
-        connectPlayer(userId, clientId);
-        addPlayerToClient(clientId, userId);
+        ConnectPlayer(userId, clientId);
+        AddPlayerToClient(clientId, userId);
 
         // 2. (await) Buscar dados do jogador
-        const playerData = await getPlayerByUserId(userId);
+        const playerData = await GetPlayerByUserId(userId);
 
         // Criar o payload do Token JWT
         const payload = {
@@ -72,15 +72,15 @@ export const tryToLogin = [
           token: token,
         };
 
-        sendWebSocketMessage(clientId, "playerJoined", loginContent);
+        SendWebSocketMessage(clientId, "playerJoined", loginContent);
         console.log(
           `[LoginController] Player ${username} conectado no cliente ${clientId}.`
         );
 
         // 4. (await) Checar se o usuário tem jogador
-        // (Note que a função `getPlayerByUserId` acima já faria isso,
+        // (Note que a função `GetPlayerByUserId` acima já faria isso,
         // mas é bom manter a verificação separada caso o login crie o player)
-        if (!(await userHasPlayer(userId))) {
+        if (!(await UserHasPlayer(userId))) {
           // Lógica para caso o usuário exista mas o player não.
           // (No nosso caso, o registerController já cuida disso)
         }

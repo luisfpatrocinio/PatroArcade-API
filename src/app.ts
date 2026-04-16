@@ -35,8 +35,8 @@ import { authRoutes } from "./routes/authRoutes";
 
 // Importações que não deviam estar aqui:
 import { clients } from "./main";
-import { isAlreadyConnected, isClientFull } from "./services/userService";
-import { clientExists } from "./services/clientService";
+import { IsAlreadyConnected, IsClientFull } from "./services/userService";
+import { ClientExists } from "./services/clientService";
 import { authMiddleware } from "./middleware/authMiddleware";
 
 // Importar o limiter
@@ -84,22 +84,22 @@ app.use("/debug", debugRoutes);
 // TODO: Configurar sessões
 
 // Função para conectar o jogador num fliperama específico
-export function connectPlayer(userId: number, clientId: number): void {
-  if (!clientExists(clientId)) {
+export function ConnectPlayer(userId: number, clientId: number): void {
+  if (!ClientExists(clientId)) {
     throw new ClientNotFoundException();
   }
 
-  if (isAlreadyConnected(userId)) {
+  if (IsAlreadyConnected(userId)) {
     throw new AlreadyConnectedException();
   }
 
-  if (isClientFull(clientId)) {
+  if (IsClientFull(clientId)) {
     throw new ClientFullException();
   }
 }
 
 // Função para desconectar o jogador
-export function disconnectPlayer(playerId: number): void {
+export function DisconnectPlayer(playerId: number): void {
   clients.forEach((client) => {
     // Remover o jogador da lista de players do cliente.
     console.log(client.players);
@@ -112,7 +112,7 @@ export function disconnectPlayer(playerId: number): void {
   });
 }
 
-export function getConnectedPlayerId(): string | null {
+export function GetConnectedPlayerId(): string | null {
   return "a";
   //   return connectedPlayerId;
 }

@@ -1,15 +1,15 @@
 import { Router } from "express";
-import { tryToLogin } from "../controllers/loginController";
-import { generateLoginPage } from "../controllers/loginArcadeController";
+import { TryToLogin } from "../controllers/loginController";
+import { GenerateLoginPage } from "../controllers/loginArcadeController";
 
 // Criar uma instância do Router
 const router = Router();
 
 // Rota para obter dados de um jogador específico
-router.post("/:clientId", tryToLogin);
+router.post("/:clientId", TryToLogin);
 
 // Página de Login
-router.get("/:clientId", generateLoginPage);
+router.get("/:clientId", GenerateLoginPage);
 
 // Criar rota para deletar um jogador
 router.delete("/:clientId", (req, res) => {

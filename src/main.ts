@@ -59,7 +59,7 @@ wss.on("connection", (ws) => {
       any
     >;
 
-    manageGameReceivedData(ws, data);
+    ManageGameReceivedData(ws, data);
   });
 
   ws.on("close", () => {
@@ -74,7 +74,7 @@ AppDataSource.initialize()
   .then(async () => {
     console.log("Conectando ao Banco de Dados...");
 
-    await seedDatabase();
+    await SeedDatabase();
 
     server.listen(PORT, () => {
       console.clear();
@@ -85,7 +85,7 @@ AppDataSource.initialize()
     console.error("Erro ao conectar ao banco de dados: ", err);
   });
 
-function manageGameReceivedData(ws: any, data: Map<string, any>) {
+function ManageGameReceivedData(ws: any, data: Map<string, any>) {
   console.log(data);
 
   const dataMap = new Map(Object.entries(data));
@@ -95,7 +95,7 @@ function manageGameReceivedData(ws: any, data: Map<string, any>) {
   switch (type) {
     case "updateClientId":
       var clientId = content.get("clientId");
-      var client = getThisClient(ws);
+      var client = GetThisClient(ws);
       if (client !== -1) {
         clients.get(client).id = clientId;
       }
@@ -103,7 +103,7 @@ function manageGameReceivedData(ws: any, data: Map<string, any>) {
       break;
     case "disconnectPlayers":
       var clientId = content.get("clientId");
-      var client = getThisClient(ws);
+      var client = GetThisClient(ws);
       if (client !== -1) {
         clients.get(client).players = [];
       }
@@ -117,7 +117,7 @@ function manageGameReceivedData(ws: any, data: Map<string, any>) {
   }
 }
 
-function getThisClient(ws: any) {
+function GetThisClient(ws: any) {
   for (const [key, value] of clients.entries()) {
     if (value.ws === ws) {
       return key;
@@ -130,7 +130,7 @@ function getThisClient(ws: any) {
  * Popula o banco de dados com os dados iniciais dos arquivos src/models/
  * se o banco de dados estiver vazio.
  */
-async function seedDatabase() {
+async function SeedDatabase() {
   console.log("Verificando se o banco precisa ser populado...");
 
   // Obter os repositórios

@@ -5,14 +5,14 @@ import { SaveData } from "../entities/SaveData";
 // Obter o repositório para a tabela SaveData
 const saveDataRepository = AppDataSource.getRepository(SaveData);
 
-export async function getGameLeaderboardRequest(req: Request, res: Response) {
+export async function GetGameLeaderboardRequest(req: Request, res: Response) {
   try {
     const gameId = Number(req.params.gameId);
     if (isNaN(gameId)) {
       return res.status(400).json({ error: "Invalid gameId parameter" });
     }
 
-    console.log(`[getGameLeaderboardRequest] gameId: ${gameId}`);
+    console.log(`[GetGameLeaderboardRequest] gameId: ${gameId}`);
 
     // 1. Buscar no BANCO DE DADOS
     // Encontre todos os saves para este 'gameId'
@@ -49,7 +49,7 @@ export async function getGameLeaderboardRequest(req: Request, res: Response) {
     // 4. Retornar o leaderboard
     res.status(200).json(leaderboard);
   } catch (error: any) {
-    console.error("[getGameLeaderboardRequest] Erro:", error.message);
+    console.error("[GetGameLeaderboardRequest] Erro:", error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 }

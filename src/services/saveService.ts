@@ -18,12 +18,12 @@ class SaveNotFoundError extends AppError {
  * Encontra um save específico de um jogador em um jogo.
  * Usa o ID DO JOGADOR (PK) e o ID DO JOGO (PK).
  */
-export async function findSaveData(
+export async function FindSaveData(
   playerId: number,
   gameId: number
 ): Promise<SaveData> {
   console.log(
-    `[findSaveData] Procurando dados de save para o jogador ${playerId} (Game ID: ${gameId})...`
+    `[FindSaveData] Procurando dados de save para o jogador ${playerId} (Game ID: ${gameId})...`
   );
 
   const save = await saveDataRepository.findOne({
@@ -38,7 +38,7 @@ export async function findSaveData(
   });
 
   if (save) {
-    console.log("[findSaveData] Dados de save encontrados!");
+    console.log("[FindSaveData] Dados de save encontrados!");
     return save;
   }
 
@@ -50,12 +50,12 @@ export async function findSaveData(
  * Esta função é SÍNCRONA e NÃO TOCA no banco.
  * Ela só cria um objeto para o controller retornar.
  */
-export function generateNewSaveDataShell(
+export function GenerateNewSaveDataShell(
   playerId: number,
   gameId: number
 ): Partial<SaveData> {
   console.log(
-    `[generateNewSaveDataShell]\t Gerando "casca" de save para o jogador ${playerId} (Game ID: ${gameId})...`
+    `[GenerateNewSaveDataShell]\t Gerando "casca" de save para o jogador ${playerId} (Game ID: ${gameId})...`
   );
   // Retorna um objeto simples, não uma entidade
   return {
@@ -71,7 +71,7 @@ export function generateNewSaveDataShell(
 /**
  * Retorna TODOS os saves do banco. (Rota de Admin)
  */
-export async function getAllSaves(): Promise<SaveData[]> {
+export async function GetAllSaves(): Promise<SaveData[]> {
   // Traz os saves e as informações de player e game relacionadas
   return saveDataRepository.find({
     relations: {

@@ -1,11 +1,11 @@
 import { Request, Response } from "express";
 import { validationResult } from "express-validator";
 import {
-  findSaveData,
-  generateNewSaveDataShell, // Mudamos o nome da função no service
-  getAllSaves,
+  FindSaveData,
+  GenerateNewSaveDataShell, // Mudamos o nome da função no service
+  GetAllSaves,
 } from "../services/saveService";
-import { updatePlayerTotalScore } from "../services/playerService";
+import { UpdatePlayerTotalScore } from "../services/playerService";
 import { AppDataSource } from "../data-source";
 import { SaveData } from "../entities/SaveData";
 import { Player } from "../entities/Player";
@@ -17,15 +17,15 @@ const playerRepository = AppDataSource.getRepository(Player);
 const gameRepository = AppDataSource.getRepository(Game);
 
 // Função auxiliar "inteligente" para descobrir qual ID usar
-function getRelevantPlayerId(req: Request): number {
+function GetRelevantPlayerId(req: Request): number {
   // Se a rota tem um :playerId (ex: /save/123/1), é uma requisição de admin. Usa ele.
   // Senão (ex: /save/me/1), é uma requisição de jogador. Usa o 'playerId' do token.
   return req.params.playerId ? Number(req.params.playerId) : req.user!.playerId;
 }
 
-export async function getPlayerSaveData(req: Request, res: Response) {
+export async function GetPlayerSaveData(req: Request, res: Response) {
   try {
-    const playerId = getRelevantPlayerId(req);
+    const playerId = GetRelevantPlayerId(req);
     const gameId = Number(req.params.gameId);
 
     if (isNaN(playerId) || isNaN(gameId)) {
@@ -34,20 +34,20 @@ export async function getPlayerSaveData(req: Request, res: Response) {
         .json({ type: "playerSaveFailed", content: "IDs inválidos." });
     }
 
-    console.log("[getPlayerSaveData] Solicitando dados salvos...");
-    const save = await findSaveData(playerId, gameId);
+    console.log("[GetPlayerSaveData] Solicitando dados salvos...");
+    const save = await FindSaveData(playerId, gameId);
     return res.status(200).json({ type: "playerSave", content: save });
   } catch (err) {
-    // Se 'findSaveData' lançou SaveNotFoundError
+    // Se 'FindSaveData' lançou SaveNotFoundError
     console.error(
-      "[findSaveData]\t Erro ao obter dados de save: ",
+      "[FindSaveData]\t Erro ao obter dados de save: ",
       (err as Error).message
     );
     // Geramos uma "casca" de save para o frontend (não salva no banco)
     return res.status(404).json({
       type: "playerSaveFailed",
-      content: generateNewSaveDataShell(
-        getRelevantPlayerId(req),
+      content: GenerateNewSaveDataShell(
+        GetRelevantPlayerId(req),
         Number(req.params.gameId)
       ),
     });
@@ -55,10 +55,10 @@ export async function getPlayerSaveData(req: Request, res: Response) {
 }
 
 // Rota de Admin
-export async function getSaveDatas(req: Request, res: Response) {
+export async function GetSaveDatas(req: Request, res: Response) {
   try {
     console.log("Obtendo todos os dados salvos.");
-    const saves = await getAllSaves();
+    const saves = await GetAllSaves();
     return res.status(200).json({ type: "allSaves", content: saves });
   } catch (error) {
     console.error("Erro ao buscar todos os saves: ", error);
@@ -69,7 +69,7 @@ export async function getSaveDatas(req: Request, res: Response) {
 }
 
 // Rota de Jogador (/me/:gameId) - 100% segura
-export async function savePlayerData(req: Request, res: Response) {
+export async function SavePlayerData(req: Request, res: Response) {
   // Verificar erros de validação do express-validator
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -101,7 +101,7 @@ export async function savePlayerData(req: Request, res: Response) {
     // 3. Se não encontrar, cria um NOVO save
     if (!save) {
       console.log(
-        `[savePlayerData] CRIANDO save: Player ${playerId}, Game ${gameId}`
+        `[SavePlayerData] CRIANDO save: Player ${playerId}, Game ${gameId}`
       );
       save = new SaveData();
 
@@ -128,10 +128,10 @@ export async function savePlayerData(req: Request, res: Response) {
     // 5. Salva o objeto 'save' no banco
     await saveDataRepository.save(save);
 
-    console.log(`[savePlayerData] SUCESSO: Player ${playerId}, Game ${gameId}`);
+    console.log(`[SavePlayerData] SUCESSO: Player ${playerId}, Game ${gameId}`);
 
     // 6. Atualiza a pontuação total (totalScore) no perfil do Player
-    await updatePlayerTotalScore(playerId);
+    await UpdatePlayerTotalScore(playerId);
 
     if (!save) {
       // Se for a primeira vez
@@ -149,7 +149,7 @@ export async function savePlayerData(req: Request, res: Response) {
     });
   } catch (err) {
     console.error(
-      `[savePlayerData] ERRO: Player ${playerId}, Game ${gameId} - ${
+      `[SavePlayerData] ERRO: Player ${playerId}, Game ${gameId} - ${
         (err as Error).message
       }`
     );
@@ -160,8 +160,8 @@ export async function savePlayerData(req: Request, res: Response) {
   }
 }
 
-// Rota de Jogador (/me/updateRichPresence/:gameId)
-export async function updateRichPresence(req: Request, res: Response) {
+// Rota de Jogador (/me/UpdateRichPresence/:gameId)
+export async function UpdateRichPresence(req: Request, res: Response) {
   // Adicionar verificação de erros de validação
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -201,7 +201,7 @@ export async function updateRichPresence(req: Request, res: Response) {
     // Se o save não existir, cria um novo
     if (!save) {
       console.log(
-        `[updateRichPresence] CRIANDO save: Player ${playerId}, Game ${gameId}`
+        `[UpdateRichPresence] CRIANDO save: Player ${playerId}, Game ${gameId}`
       );
       save = new SaveData();
 
@@ -229,13 +229,13 @@ export async function updateRichPresence(req: Request, res: Response) {
     await saveDataRepository.save(save);
 
     console.log(
-      `[updateRichPresence] SUCESSO: Player ${playerId}, Game ${gameId}`
+      `[UpdateRichPresence] SUCESSO: Player ${playerId}, Game ${gameId}`
     );
 
     return res.status(statusCode).json({ type, content });
   } catch (err) {
     console.error(
-      `[updateRichPresence] ERRO: Player ${playerId}, Game ${gameId} - ${
+      `[UpdateRichPresence] ERRO: Player ${playerId}, Game ${gameId} - ${
         (err as Error).message
       }`
     );
