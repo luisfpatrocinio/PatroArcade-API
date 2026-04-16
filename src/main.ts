@@ -70,20 +70,22 @@ wss.on("connection", (ws) => {
 });
 
 // Inicializar conexão com o banco de dados
-AppDataSource.initialize()
-  .then(async () => {
-    console.log("Conectando ao Banco de Dados...");
+if (process.env.NODE_ENV !== "test") {
+  AppDataSource.initialize()
+    .then(async () => {
+      console.log("Conectando ao Banco de Dados...");
 
-    await SeedDatabase();
+      await SeedDatabase();
 
-    server.listen(PORT, () => {
-      console.clear();
-      console.log(`PatroTCC rodando: ${PORT}`);
+      server.listen(PORT, () => {
+        console.clear();
+        console.log(`PatroTCC rodando: ${PORT}`);
+      });
+    })
+    .catch((err) => {
+      console.error("Erro ao conectar ao banco de dados: ", err);
     });
-  })
-  .catch((err) => {
-    console.error("Erro ao conectar ao banco de dados: ", err);
-  });
+}
 
 function ManageGameReceivedData(ws: any, data: Map<string, any>) {
   console.log(data);

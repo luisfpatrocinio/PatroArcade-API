@@ -36,6 +36,15 @@ const sqliteConfig: DataSourceOptions = {
   subscribers: [],
 };
 
+const testConfig: DataSourceOptions = {
+  type: "sqlite",
+  database: ":memory:",
+  synchronize: true,
+  dropSchema: true,
+  logging: false,
+  entities: [User, Player, Game, Score, Arcade],
+};
+
 export const AppDataSource = new DataSource(
-  isPostgres ? postgresConfig : sqliteConfig
+  process.env.NODE_ENV === "test" ? testConfig : (isPostgres ? postgresConfig : sqliteConfig)
 );
