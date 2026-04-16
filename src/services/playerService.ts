@@ -1,12 +1,12 @@
 import { AppDataSource } from "../data-source";
 import { Player } from "../entities/Player";
-import { SaveData } from "../entities/SaveData";
+import { Score } from "../entities/Score";
 import { User } from "../entities/User";
 import { PlayerNotFoundError } from "../exceptions/appError";
 
 // Repositórios
 const playerRepository = AppDataSource.getRepository(Player);
-const saveDataRepository = AppDataSource.getRepository(SaveData);
+const scoreRepository = AppDataSource.getRepository(Score);
 
 /**
  * Retorna os dados de um jogador pelo NOME.
@@ -59,20 +59,18 @@ export async function CreatePlayerForUser(user: User): Promise<Player> {
 }
 
 /**
- * Obtém todos os saves de um jogador, com base no ID DO JOGADOR (chave primária).
+ * Obtém todos os scores de um jogador.
  */
-export async function ObtainPlayerSaves(playerId: number): Promise<SaveData[]> {
-  // Primeiro, verifica se o jogador existe
+export async function ObtainPlayerScores(playerId: number): Promise<Score[]> {
   const player = await playerRepository.findOneBy({ id: playerId });
   if (!player) {
     throw new PlayerNotFoundError();
   }
 
-  // Se existe, busca os saves relacionados a ele
-  return saveDataRepository.find({
+  return scoreRepository.find({
     where: { player: { id: playerId } },
     relations: {
-      game: true, // Traz as informações do Jogo junto com o Save
+      game: true, 
     },
   });
 }
@@ -91,14 +89,11 @@ export async function UpdatePlayerTotalScore(
     throw new PlayerNotFoundError();
   }
 
-  const saves = await ObtainPlayerSaves(playerId);
+  const scores = await ObtainPlayerScores(playerId);
   let totalScore = 0;
 
-  saves.forEach((save) => {
-    // save.data é o JSON { highestScore: 500, totalScore: 1100, ... }
-    if (save.data && save.data.totalScore) {
-      totalScore += save.data.totalScore;
-    }
+  scores.forEach((s) => {
+    totalScore += s.score;
   });
 
   player.totalScore = totalScore;

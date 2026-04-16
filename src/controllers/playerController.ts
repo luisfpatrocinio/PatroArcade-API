@@ -4,7 +4,7 @@ import { Request, Response } from "express";
 import {
   GetPlayerByUserId,
   GetPlayerByPlayerId, // Nova função que busca pelo ID do Player
-  ObtainPlayerSaves,
+  ObtainPlayerScores,
   GetAllPlayers, // Nova função
 } from "../services/playerService";
 import AppError, { PlayerNotFoundError } from "../exceptions/appError"; // Importar PlayerNotFoundError
@@ -85,8 +85,8 @@ export const GetPlayerData = async (req: Request, res: Response) => {
   }
 };
 
-// Obter todos os saves de um jogador
-export const GetPlayerAllSaves = async (req: Request, res: Response) => {
+// Obter todos os scores de um jogador
+export const GetPlayerAllScores = async (req: Request, res: Response) => {
   try {
     // 1. Lógica inteligente para pegar o ID
     // Lembre-se que adicionamos 'playerId' ao token!
@@ -95,7 +95,7 @@ export const GetPlayerAllSaves = async (req: Request, res: Response) => {
       : req.user?.playerId; // <-- MUITO MAIS FÁCIL AGORA!
 
     console.log(
-      `[GetPlayerAllSaves] Solicitando saves para o Player ID: ${desiredPlayerId}`
+      `[GetPlayerAllScores] Solicitando scores para o Player ID: ${desiredPlayerId}`
     );
 
     if (!desiredPlayerId || isNaN(desiredPlayerId)) {
@@ -106,24 +106,24 @@ export const GetPlayerAllSaves = async (req: Request, res: Response) => {
     }
 
     // 2. Chamar o serviço (agora async)
-    const saves = await ObtainPlayerSaves(desiredPlayerId);
+    const scores = await ObtainPlayerScores(desiredPlayerId);
 
     console.log(
-      `[GetPlayerAllSaves] Fornecendo dados de save para o Player ID: ${desiredPlayerId}`
+      `[GetPlayerAllScores] Fornecendo dados de score para o Player ID: ${desiredPlayerId}`
     );
-    return res.status(200).json({ type: "playerSaves", content: saves });
+    return res.status(200).json({ type: "playerScores", content: scores });
 
   } catch (err: any) {
-    console.error("Erro ao obter dados de save: ", err.message);
+    console.error("Erro ao obter dados de score: ", err.message);
     if (err instanceof PlayerNotFoundError) {
        return res.status(err.statusCode).json({
-        type: "playerSavesFailed",
+        type: "playerScoresFailed",
         content: "Jogador não encontrado.",
       });
     }
     if (err instanceof AppError) {
       return res.status(err.statusCode).json({
-        type: "playerSavesFailed",
+        type: "playerScoresFailed",
         content: err.message,
       });
     }

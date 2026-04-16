@@ -1,5 +1,5 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import { SaveData } from "./SaveData"; 
+import { Score } from "./Score"; 
 
 @Entity()
 export class Game {
@@ -21,7 +21,7 @@ export class Game {
   @Column("simple-json") // Perfeito para armazenar objetos
   dataLabels: { [key: string]: string };
 
-  // Relação: Um Jogo (Game) pode ter muitos Saves (SaveData)
-  @OneToMany(() => SaveData, (save) => save.game)
-  saves: SaveData[];
+  // Relação: Um Jogo (Game) pode ter muitos Scores
+  @OneToMany(() => Score, (score) => score.game)
+  scores: Score[];
 }

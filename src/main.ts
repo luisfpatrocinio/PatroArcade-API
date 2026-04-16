@@ -10,14 +10,14 @@ import { User } from "./entities/User";
 import { Player } from "./entities/Player";
 import { Game } from "./entities/Game";
 import { Arcade } from "./entities/Arcade";
-import { SaveData } from "./entities/SaveData";
+
 
 // Importar os DADOS ANTIGOS
 import { usersDatabase } from "./models/userModel";
 import { playerDatabase } from "./models/playerDatabase";
 import { gameDatabase } from "./models/gameInfo";
 import { arcadeDatabase } from "./models/arcadeInfo";
-import { saveDatabase } from "./models/saveData";
+
 
 // Carregar variáveis de ambiente
 dotenv.config();
@@ -138,7 +138,7 @@ async function SeedDatabase() {
   const playerRepository = AppDataSource.getRepository(Player);
   const gameRepository = AppDataSource.getRepository(Game);
   const arcadeRepository = AppDataSource.getRepository(Arcade);
-  const saveRepository = AppDataSource.getRepository(SaveData);
+  // legacy saves removed
 
   // 1. Verificar se já foi populado (ex: checando se o admin "patrocinio" existe)
   const adminUser = await userRepository.findOneBy({ username: "patrocinio" });
@@ -189,37 +189,6 @@ async function SeedDatabase() {
   }
   console.log("Usuários e Jogadores salvos.");
 
-  // 5. Salvar Saves (ligando-os aos novos Players e Games)
-  const allNewPlayers = await playerRepository.find();
-  const allNewGames = await gameRepository.find();
-
-  for (const oldSave of saveDatabase) {
-    const newSave = new SaveData();
-    newSave.richPresenceText = oldSave.richPresenceText;
-    newSave.lastPlayed = oldSave.lastPlayed;
-    newSave.data = oldSave.data;
-
-    // Encontrar o Player correspondente
-    const oldPlayer = playerDatabase.find((p) => p.id === oldSave.playerId);
-
-    // Encontrar o Game correspondente
-    const oldGame = gameDatabase.find((g) => g.id === oldSave.gameId);
-
-    // A LINHA DO ERRO ESTÁ ABAIXO:
-    // Nós tentámos usar oldPlayer.name e oldGame.title sem verificar
-
-    // ADICIONE ESTA VERIFICAÇÃO:
-    if (oldPlayer && oldGame) {
-      const newPlayer = allNewPlayers.find((p) => p.name === oldPlayer.name);
-      const newGame = allNewGames.find((g) => g.title === oldGame.title);
-
-      if (newPlayer && newGame) {
-        newSave.player = newPlayer; // Ligar o Save ao Player
-        newSave.game = newGame; // Ligar o Save ao Game
-        await saveRepository.save(newSave);
-      }
-    }
-  }
-  console.log("Saves salvos.");
+  // Saves legados desativados.
   console.log("Banco de dados populado com sucesso!");
 }

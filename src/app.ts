@@ -25,7 +25,7 @@ import { arcadeLoginRoutes } from "./routes/arcadeLoginRoutes";
 import { newsRoutes } from "./routes/newsRoutes";
 import { debugRoutes } from "./routes/debugRoutes";
 import { gameRoutes } from "./routes/gameRoutes";
-import { saveRoutes } from "./routes/saveRoutes";
+import { scoreRoutes } from "./routes/scoreRoutes";
 import { gamesRoutes } from "./routes/gamesRoutes";
 import { registerRoutes } from "./routes/registerRoutes";
 import { arcadeRoutes } from "./routes/arcadeRoutes";
@@ -37,7 +37,7 @@ import { authRoutes } from "./routes/authRoutes";
 import { clients } from "./main";
 import { IsAlreadyConnected, IsClientFull } from "./services/userService";
 import { ClientExists } from "./services/clientService";
-import { authMiddleware } from "./middleware/authMiddleware";
+
 
 // Importar o limiter
 import { limiter, authLimiter } from "./middleware/rateLimit";
@@ -72,7 +72,7 @@ app.use("/player", playerRoutes);
 // --- ROTAS PROTEGIDAS (Obrigatório ter um token JWT válido) ---
 app.use("/logout", logoutRoutes);
 app.use("/game", gameRoutes);
-app.use("/save", authMiddleware, saveRoutes);
+app.use("/score", scoreRoutes);
 app.use("/arcade", arcadeRoutes);
 
 // --- ROTAS DE AUTENTICAÇÃO ---
