@@ -5,36 +5,6 @@ import { GenerateLoginPage } from "../controllers/loginArcadeController";
 // Criar uma instância do Router
 const router = Router();
 
-// Rota para obter dados de um jogador específico
-/**
- * @swagger
- * /login:
- *   post:
- *     summary: "Autentica um usuário web"
- *     description: "Devolve um JWT validado com as permissões do usuário"
- *     tags: [Auth]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - username
- *               - password
- *             properties:
- *               username:
- *                 type: string
- *               password:
- *                 type: string
- *     responses:
- *       200:
- *         description: "Autenticado com sucesso, retorna JWT."
- *       401:
- *         description: "Credenciais inválidas."
- */
-router.post("/:clientId", TryToLogin);
-
 /**
  * @swagger
  * /login/dev:
@@ -67,6 +37,36 @@ router.post("/:clientId", TryToLogin);
  *         description: "Acesso negado em Produção."
  */
 router.post("/dev", LoginDev);
+
+// Rota para obter dados de um jogador específico
+/**
+ * @swagger
+ * /login:
+ *   post:
+ *     summary: "Autentica um usuário web"
+ *     description: "Devolve um JWT validado com as permissões do usuário"
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - username
+ *               - password
+ *             properties:
+ *               username:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: "Autenticado com sucesso, retorna JWT."
+ *       401:
+ *         description: "Credenciais inválidas."
+ */
+router.post("/:clientId", TryToLogin);
 
 // Página de Login
 router.get("/:clientId", GenerateLoginPage);
