@@ -111,3 +111,73 @@ export const TryToLogin = [
     }
   },
 ];
+
+export const LoginDev = async (req: Request, res: Response) => {
+  if (process.env.NODE_ENV === "production") {
+    return res.status(403).json({
+      type: "forbidden",
+      content: "Rota desabilitada em produção.",
+    });
+  }
+
+  const username = req.body.username;
+  const password = req.body.password;
+
+  if (!username || !password) {
+    return res.status(400).json({
+      type: "loginFailed",
+      content: "Dados de login inválidos.",
+    });
+  }
+
+  if (!process.env.JWT_SECRET) {
+    return res.status(500).json({
+      type: "loginFailed",
+      content: "Erro de configuração no servidor.",
+    });
+  }
+
+  try {
+    const credentialsAreValid = await CheckCredentials(username, password);
+
+    if (!credentialsAreValid) {
+      return res.status(401).json({
+        type: "loginFailed",
+        content: "Credenciais inválidas.",
+      });
+    }
+
+    const userData = await GetUserDataByUserName(username);
+    const userId = userData.id;
+
+    // Ignoramos completamente conexões Websocket e clientIds
+
+    const playerData = await GetPlayerByUserId(userId);
+
+    const payload = {
+      userId: userData.id,
+      username: userData.username,
+      role: userData.role,
+      playerId: playerData.id,
+    };
+
+    const token = jwt.sign(payload, process.env.JWT_SECRET, {
+      expiresIn: "8h",
+    });
+
+    res.status(200).json({
+      type: "loginSuccess",
+      content: {
+        player: playerData,
+        token: token,
+      },
+    });
+  } catch (error: any) {
+    console.error(`[LoginDev] ERROR: ${error.message}`);
+    res.status(500).json({
+      type: "loginFailed",
+      content: error.message || "Erro interno no servidor.",
+    });
+  }
+};
+

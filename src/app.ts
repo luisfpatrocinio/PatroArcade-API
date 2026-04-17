@@ -39,11 +39,15 @@ import { IsAlreadyConnected, IsClientFull } from "./services/userService";
 import { ClientExists } from "./services/clientService";
 
 
-// Importar o limiter
+// Importar funções de rotas
 import { limiter, authLimiter } from "./middleware/rateLimit";
+import { setupSwagger } from "./swagger";
 
 // Criar a instância do Express
 const app: Application = express();
+
+// Set up Swagger UI
+setupSwagger(app);
 
 app.set("trust proxy", 1);
 
