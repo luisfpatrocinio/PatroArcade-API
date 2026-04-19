@@ -19,7 +19,7 @@ export class User {
   googleId: string;
 
   @Column()
-  role: "admin" | "player";
+  role: "admin" | "player" | "superadmin";
 
   // Novo campo para AdminUser
   @Column("simple-array", { nullable: true })

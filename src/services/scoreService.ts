@@ -2,6 +2,7 @@ import { AppDataSource } from "../data-source";
 import { Score } from "../entities/Score";
 import { Player } from "../entities/Player";
 import { Game } from "../entities/Game";
+import { Arcade } from "../entities/Arcade";
 import { AntiCheatError } from "../exceptions/appError";
 
 const scoreRepository = AppDataSource.getRepository(Score);
@@ -13,7 +14,8 @@ export async function ProcessPlayerScore(
   gameId: number,
   newScore: number,
   sessionTimeInSeconds: number,
-  richPresenceText?: string | null
+  richPresenceText?: string | null,
+  arcadeId?: number | null
 ): Promise<{ status: "created" | "updated"; content: string }> {
   const player = await playerRepository.findOneBy({ id: playerId });
   const game = await gameRepository.findOneBy({ id: gameId });
@@ -44,9 +46,17 @@ export async function ProcessPlayerScore(
     scoreRecord.game = game;
     scoreRecord.score = newScore;
     scoreRecord.sessionTimeInSeconds = sessionTimeInSeconds;
-    
+
     if (richPresenceText !== undefined) {
-        scoreRecord.richPresenceText = richPresenceText;
+      scoreRecord.richPresenceText = richPresenceText;
+    }
+
+    // Vincular ao Arcade se inferido
+    if (arcadeId) {
+      const arcade = await AppDataSource.getRepository(Arcade).findOneBy({ id: arcadeId });
+      if (arcade) scoreRecord.arcade = arcade;
+    } else {
+      scoreRecord.arcade = null;
     }
 
     await scoreRepository.save(scoreRecord);

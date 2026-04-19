@@ -47,7 +47,7 @@ wss.on("connection", (ws) => {
   console.log("Cliente WebSocket conectado:", clientId);
   ws.send(
     JSON.stringify({
-      type: "saudacoes", // TODO: Dar utilidade para isso.
+      type: "saudacoes",
       content: { clientId },
     })
   );
@@ -64,7 +64,14 @@ wss.on("connection", (ws) => {
 
   ws.on("close", () => {
     console.log("Cliente desconectado:", clientId);
-    // Remover o cliente do mapa de clientes
+    const client = clients.get(clientId);
+    // Atualizar status do arcade no banco para 'offline'
+    if (client && client.id > 0) {
+      const arcadeRepository = AppDataSource.getRepository(Arcade);
+      arcadeRepository.update(client.id, { status: "offline" }).catch((err) =>
+        console.error(`[WS] Erro ao atualizar status para offline: ${err.message}`)
+      );
+    }
     clients.delete(clientId);
   });
 });
@@ -102,6 +109,18 @@ function ManageGameReceivedData(ws: any, data: Map<string, any>) {
         clients.get(client).id = clientId;
       }
       console.log(`[UPDATE CLIENT ID]: ${client} atualizado para ${clientId}.`);
+
+      // Atualizar status do arcade no banco para 'online'
+      const arcadeNumericId = Number(clientId);
+      if (arcadeNumericId > 0) {
+        const arcadeRepository = AppDataSource.getRepository(Arcade);
+        arcadeRepository.update(arcadeNumericId, {
+          status: "online",
+          lastBootTime: new Date(),
+        }).catch((err) =>
+          console.error(`[WS] Erro ao atualizar status para online: ${err.message}`)
+        );
+      }
       break;
     case "disconnectPlayers":
       var clientId = content.get("clientId");
@@ -127,6 +146,21 @@ function GetThisClient(ws: any) {
   }
   return -1;
 }
+
+/**
+ * Infere o arcadeId de um jogador usando o estado in-memory dos WebSockets.
+ * @param userId O userId do jogador (conforme armazenado no Map de clientes).
+ * @returns O arcadeId (client.id) onde o jogador está conectado, ou null se não encontrado.
+ */
+export function GetArcadeIdByPlayerId(userId: number): number | null {
+  for (const [, client] of clients.entries()) {
+    if (client.players.includes(userId) && client.id > 0) {
+      return client.id;
+    }
+  }
+  return null;
+}
+
 
 /**
  * Popula o banco de dados com os dados iniciais dos arquivos src/models/

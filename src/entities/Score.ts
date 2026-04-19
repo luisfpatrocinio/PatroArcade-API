@@ -8,6 +8,7 @@ import {
 } from "typeorm";
 import { Player } from "./Player";
 import { Game } from "./Game";
+import { Arcade } from "./Arcade";
 
 @Entity()
 export class Score {
@@ -36,4 +37,8 @@ export class Score {
   // Relação: Muitos Scores pertencem a Um Jogo
   @ManyToOne(() => Game, (game) => game.scores, { onDelete: "CASCADE" })
   game: Game;
+
+  // Relação: Muitos Scores pertencem a Um Arcade (nullable para retrocompatibilidade)
+  @ManyToOne(() => Arcade, (arcade) => arcade.scores, { nullable: true, onDelete: "SET NULL" })
+  arcade: Arcade | null;
 }

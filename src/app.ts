@@ -29,6 +29,7 @@ import { scoreRoutes } from "./routes/scoreRoutes";
 import { gamesRoutes } from "./routes/gamesRoutes";
 import { registerRoutes } from "./routes/registerRoutes";
 import { arcadeRoutes } from "./routes/arcadeRoutes";
+import { dashboardRoutes } from "./routes/dashboardRoutes";
 
 // Importar Passport
 import { authRoutes } from "./routes/authRoutes";
@@ -78,6 +79,7 @@ app.use("/logout", logoutRoutes);
 app.use("/game", gameRoutes);
 app.use("/score", scoreRoutes);
 app.use("/arcade", arcadeRoutes);
+app.use("/dashboard", dashboardRoutes);
 
 // --- ROTAS DE AUTENTICAÇÃO ---
 app.use("/auth", authLimiter, authRoutes);

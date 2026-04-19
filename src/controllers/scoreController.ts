@@ -2,11 +2,16 @@ import { Request, Response } from "express";
 import { ProcessPlayerScore, UpdatePlayerRichPresence } from "../services/scoreService";
 import { UpdatePlayerTotalScore } from "../services/playerService";
 import { AntiCheatError } from "../exceptions/appError";
+import { GetArcadeIdByPlayerId } from "../main";
 
 export async function SubmitScore(req: Request, res: Response) {
   const playerId = req.user!.playerId;
+  const userId = req.user!.userId;
   const gameId = Number(req.params.gameId);
   const { score, sessionTimeInSeconds, richPresenceText } = req.body;
+
+  // Inferência server-authoritative do arcadeId via estado WebSocket
+  const arcadeId = GetArcadeIdByPlayerId(userId);
 
   if (isNaN(gameId)) {
     return res.status(400).json({ type: "scoreFailed", content: "Game ID inválido." });
@@ -18,7 +23,8 @@ export async function SubmitScore(req: Request, res: Response) {
       gameId,
       score,
       sessionTimeInSeconds,
-      richPresenceText
+      richPresenceText,
+      arcadeId
     );
 
     // Update global player score whenever we receive a submission
