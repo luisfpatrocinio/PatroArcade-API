@@ -12,16 +12,16 @@ export class Arcade {
   @Column("text")
   description: string;
 
-  @Column({ nullable: true })
+  @Column({ type: "integer", nullable: true })
   ownerId: number | null;
 
-  @Column({ default: "offline" })
+  @Column({ type: "varchar", default: "offline" })
   status: "online" | "offline";
 
   @Column({ nullable: true, type: "datetime" })
   lastBootTime: Date | null;
 
-  @Column({ nullable: true })
+  @Column({ type: "integer", nullable: true })
   currentGameId: number | null;
 
   // Relação: Um Arcade pode ter muitos Scores

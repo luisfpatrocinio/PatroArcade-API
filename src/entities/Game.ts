@@ -21,10 +21,10 @@ export class Game {
   @Column("simple-json") // Perfeito para armazenar objetos
   dataLabels: { [key: string]: string };
 
-  @Column({ default: 15000 })
+  @Column({ type: "integer", default: 15000 })
   maxScorePerMinute: number;
 
-  @Column({ default: 5000 })
+  @Column({ type: "integer", default: 5000 })
   baseScoreBuffer: number;
 
   // Relação: Um Jogo (Game) pode ter muitos Scores
