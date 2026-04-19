@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { ProcessPlayerScore, UpdatePlayerRichPresence } from "../services/scoreService";
 import { UpdatePlayerTotalScore } from "../services/playerService";
+import { AntiCheatError } from "../exceptions/appError";
 
 export async function SubmitScore(req: Request, res: Response) {
   const playerId = req.user!.playerId;
@@ -30,6 +31,13 @@ export async function SubmitScore(req: Request, res: Response) {
       content: result.content,
     });
   } catch (err: any) {
+    if (err instanceof AntiCheatError || err.name === "AntiCheatError") {
+      return res.status(err.statusCode || 400).json({
+        type: "validationError",
+        content: [{ field: "body.AntiCheat", message: err.message }],
+      });
+    }
+
     console.error(`[SubmitScore] ERRO: Player ${playerId}, Game ${gameId} - ${err.message}`);
     return res.status(500).json({
       type: "scoreFailed",

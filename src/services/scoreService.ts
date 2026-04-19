@@ -2,6 +2,7 @@ import { AppDataSource } from "../data-source";
 import { Score } from "../entities/Score";
 import { Player } from "../entities/Player";
 import { Game } from "../entities/Game";
+import { AntiCheatError } from "../exceptions/appError";
 
 const scoreRepository = AppDataSource.getRepository(Score);
 const playerRepository = AppDataSource.getRepository(Player);
@@ -14,6 +15,21 @@ export async function ProcessPlayerScore(
   sessionTimeInSeconds: number,
   richPresenceText?: string | null
 ): Promise<{ status: "created" | "updated"; content: string }> {
+  const player = await playerRepository.findOneBy({ id: playerId });
+  const game = await gameRepository.findOneBy({ id: gameId });
+
+  if (!player || !game) {
+    throw new Error("Jogador ou Jogo não encontrado.");
+  }
+
+  // Validação Anti-Cheat (Baseada na Entity)
+  const elapsedMinutes = sessionTimeInSeconds / 60;
+  const maxAllowedScore = game.baseScoreBuffer + elapsedMinutes * game.maxScorePerMinute;
+
+  if (newScore > maxAllowedScore) {
+    throw new AntiCheatError();
+  }
+
   let scoreRecord = await scoreRepository.findOne({
     where: {
       player: { id: playerId },
@@ -23,13 +39,6 @@ export async function ProcessPlayerScore(
 
   if (!scoreRecord) {
     // Record does not exist, create it
-    const player = await playerRepository.findOneBy({ id: playerId });
-    const game = await gameRepository.findOneBy({ id: gameId });
-
-    if (!player || !game) {
-      throw new Error("Jogador ou Jogo não encontrado.");
-    }
-
     scoreRecord = new Score();
     scoreRecord.player = player;
     scoreRecord.game = game;
