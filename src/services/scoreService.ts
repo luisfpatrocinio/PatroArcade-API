@@ -66,3 +66,39 @@ export async function ProcessPlayerScore(
     }
   }
 }
+
+export async function UpdatePlayerRichPresence(
+  playerId: number,
+  gameId: number,
+  statusText: string
+): Promise<{ status: "created" | "updated"; content: string }> {
+  let scoreRecord = await scoreRepository.findOne({
+    where: {
+      player: { id: playerId },
+      game: { id: gameId },
+    },
+  });
+
+  if (!scoreRecord) {
+    const player = await playerRepository.findOneBy({ id: playerId });
+    const game = await gameRepository.findOneBy({ id: gameId });
+
+    if (!player || !game) {
+      throw new Error("Jogador ou Jogo não encontrado.");
+    }
+
+    scoreRecord = new Score();
+    scoreRecord.player = player;
+    scoreRecord.game = game;
+    scoreRecord.score = 0;
+    scoreRecord.sessionTimeInSeconds = 0;
+    scoreRecord.richPresenceText = statusText;
+
+    await scoreRepository.save(scoreRecord);
+    return { status: "created", content: "Status de atividade registrado com sucesso (primeiro registro)." };
+  } else {
+    scoreRecord.richPresenceText = statusText;
+    await scoreRepository.save(scoreRecord);
+    return { status: "updated", content: "Status de atividade atualizado com sucesso." };
+  }
+}

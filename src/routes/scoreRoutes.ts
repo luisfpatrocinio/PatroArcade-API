@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { ValidateSchema } from "../middleware/validateSchema";
-import { ScoreSchema } from "../validators/scoreValidator";
-import { SubmitScore } from "../controllers/scoreController";
+import { ScoreSchema, UpdateStatusSchema } from "../validators/scoreValidator";
+import { SubmitScore, UpdateStatus } from "../controllers/scoreController";
 import { authMiddleware } from "../middleware/authMiddleware";
 
 const router = Router();
@@ -60,6 +60,53 @@ router.post(
   authMiddleware,
   ValidateSchema(ScoreSchema),
   SubmitScore
+);
+
+/**
+ * @swagger
+ * /score/status/{gameId}:
+ *   put:
+ *     summary: "Atualiza o Rich Presence do jogador sem submeter pontuações."
+ *     description: "Pode ser chamado constantemente para atualizar o que o jogador está fazendo, ignorando a lógica de high score (por ex. 'Explorando floresta', 'Na fase do Chefe')."
+ *     tags: [Score]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: gameId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: "ID do jogo na plataforma"
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - richPresenceText
+ *             properties:
+ *               richPresenceText:
+ *                 type: string
+ *                 maxLength: 100
+ *                 description: "O texto descrevendo a atividade"
+ *                 example: "Derrotando Opressor da Floresta"
+ *     responses:
+ *       200:
+ *         description: "Status de atividade atualizado com sucesso."
+ *       201:
+ *         description: "Status de atividade registrado com sucesso (primeiro registro)."
+ *       400:
+ *         description: "Erro de validação, payload ou parâmetros inválidos."
+ *       401:
+ *         description: "Token Ausente ou Inválido."
+ */
+router.put(
+  "/status/:gameId",
+  authMiddleware,
+  ValidateSchema(UpdateStatusSchema),
+  UpdateStatus
 );
 
 export { router as scoreRoutes };

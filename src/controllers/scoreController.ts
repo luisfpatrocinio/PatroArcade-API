@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { ProcessPlayerScore } from "../services/scoreService";
+import { ProcessPlayerScore, UpdatePlayerRichPresence } from "../services/scoreService";
 import { UpdatePlayerTotalScore } from "../services/playerService";
 
 export async function SubmitScore(req: Request, res: Response) {
@@ -34,6 +34,37 @@ export async function SubmitScore(req: Request, res: Response) {
     return res.status(500).json({
       type: "scoreFailed",
       content: err.message === "Jogador ou Jogo não encontrado." ? err.message : "Erro interno ao processar a pontuação.",
+    });
+  }
+}
+
+export async function UpdateStatus(req: Request, res: Response) {
+  const playerId = req.user!.playerId;
+  const gameId = Number(req.params.gameId);
+  const { richPresenceText } = req.body;
+
+  if (isNaN(gameId)) {
+    return res.status(400).json({ type: "scoreFailed", content: "Game ID inválido." });
+  }
+
+  try {
+    const result = await UpdatePlayerRichPresence(
+      playerId,
+      gameId,
+      richPresenceText
+    );
+
+    const statusCode = result.status === "created" ? 201 : 200;
+    
+    return res.status(statusCode).json({
+      type: "statusUpdateSuccess",
+      content: result.content,
+    });
+  } catch (err: any) {
+    console.error(`[UpdateStatus] ERRO: Player ${playerId}, Game ${gameId} - ${err.message}`);
+    return res.status(500).json({
+      type: "statusUpdateFailed",
+      content: err.message === "Jogador ou Jogo não encontrado." ? err.message : "Erro interno ao processar a requisição.",
     });
   }
 }
