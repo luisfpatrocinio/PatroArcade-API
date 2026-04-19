@@ -1,5 +1,8 @@
 import { z } from "zod";
 
+const MAX_SCORE_PER_MINUTE = Number(process.env.MAX_SCORE_PER_MINUTE) || 15000;
+const BASE_SCORE_BUFFER = 5000;
+
 export const ScoreSchema = z.object({
   body: z
     .object({
@@ -15,11 +18,11 @@ export const ScoreSchema = z.object({
     })
     .refine(
       (data) => {
-        // Lógica Genérica Anti-Cheat (Máximo 1000 pontos / 60s)
+        // Lógica Genérica Anti-Cheat com Buffer
         const elapsedMinutes = data.sessionTimeInSeconds / 60;
-        const maxAllowedPoints = Math.max(1000, 1000 * elapsedMinutes);
+        const maxAllowedScore = BASE_SCORE_BUFFER + elapsedMinutes * MAX_SCORE_PER_MINUTE;
 
-        if (data.score > maxAllowedPoints) {
+        if (data.score > maxAllowedScore) {
           return false;
         }
 

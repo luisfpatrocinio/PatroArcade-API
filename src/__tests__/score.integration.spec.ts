@@ -79,12 +79,12 @@ describe("Score Integration Tests", () => {
   });
 
   it("should block impossible scores based on anti-cheat logic (Zod Validation)", async () => {
-    // 5000 points in 2 seconds is far beyond the 1000 per minute limit
+    // 6000 points in 2 seconds is far beyond the new limit of 5500 points (5000 buffer + 500 generated in 2s)
     const res = await request(app)
       .post(`/score/${mockGameId}`)
       .set("Authorization", `Bearer ${token}`)
       .send({
-        score: 5000,
+        score: 6000,
         sessionTimeInSeconds: 2,
         richPresenceText: "Speed runner hack",
       });
