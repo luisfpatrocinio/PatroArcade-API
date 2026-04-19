@@ -104,11 +104,12 @@ function ManageGameReceivedData(ws: any, data: Map<string, any>) {
   switch (type) {
     case "updateClientId":
       var clientId = content.get("clientId");
+      var gameId = content.get("gameId");
       var client = GetThisClient(ws);
       if (client !== -1) {
         clients.get(client).id = clientId;
       }
-      console.log(`[UPDATE CLIENT ID]: ${client} atualizado para ${clientId}.`);
+      console.log(`[UPDATE CLIENT ID]: ${client} atualizado para ${clientId} (Game: ${gameId}).`);
 
       // Atualizar status do arcade no banco para 'online'
       const arcadeNumericId = Number(clientId);
@@ -117,6 +118,7 @@ function ManageGameReceivedData(ws: any, data: Map<string, any>) {
         arcadeRepository.update(arcadeNumericId, {
           status: "online",
           lastBootTime: new Date(),
+          currentGameId: gameId ? Number(gameId) : null,
         }).catch((err) =>
           console.error(`[WS] Erro ao atualizar status para online: ${err.message}`)
         );
