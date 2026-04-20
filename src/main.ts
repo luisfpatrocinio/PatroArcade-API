@@ -94,22 +94,24 @@ if (process.env.NODE_ENV !== "test") {
     });
 }
 
-function ManageGameReceivedData(ws: any, data: Map<string, any>) {
+function ManageGameReceivedData(ws: any, data: any) {
   console.log(data);
 
-  const dataMap = new Map(Object.entries(data));
-  const type = dataMap.get("type");
-  const content = new Map(Object.entries(dataMap.get("content")));
+  const type = data.type;
+  const content = data.content || {};
 
   switch (type) {
     case "updateClientId":
-      var clientId = content.get("clientId");
-      var gameId = content.get("gameId");
-      var client = GetThisClient(ws);
-      if (client !== -1) {
-        clients.get(client).id = clientId;
+      // Suporte para payloads aninhados (legado) ou flat (novo)
+      // Suporte para chaves 'clientId' ou 'arcadeId'
+      const clientId = content.clientId || content.arcadeId || data.clientId || data.arcadeId;
+      const gameId = content.gameId || data.gameId;
+
+      const clientTempId = GetThisClient(ws);
+      if (clientTempId !== -1) {
+        clients.get(clientTempId).id = clientId;
       }
-      console.log(`[UPDATE CLIENT ID]: ${client} atualizado para ${clientId} (Game: ${gameId}).`);
+      console.log(`[UPDATE CLIENT ID]: TempID ${clientTempId} mapeado para ArcadeID ${clientId} (Game: ${gameId}).`);
 
       // Atualizar status do arcade no banco para 'online'
       const arcadeNumericId = Number(clientId);
@@ -125,13 +127,12 @@ function ManageGameReceivedData(ws: any, data: Map<string, any>) {
       }
       break;
     case "disconnectPlayers":
-      var clientId = content.get("clientId");
-      var client = GetThisClient(ws);
-      if (client !== -1) {
-        clients.get(client).players = [];
+      const clientTempIdDisc = GetThisClient(ws);
+      if (clientTempIdDisc !== -1) {
+        clients.get(clientTempIdDisc).players = [];
       }
       console.log(
-        `[DISCONNECT PLAYERS]: Jogadores do cliente ${client} desconectados.`
+        `[DISCONNECT PLAYERS]: Jogadores do cliente TempID ${clientTempIdDisc} desconectados.`
       );
 
       break;
