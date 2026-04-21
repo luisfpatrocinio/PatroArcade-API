@@ -1,6 +1,7 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import { AppDataSource } from "../data-source";
 import { Game } from "../entities/Game";
+import { createGame } from "../services/gameService";
 
 // Obter o repositório para a tabela Game
 const gameRepository = AppDataSource.getRepository(Game);
@@ -44,5 +45,12 @@ export async function GetGameDatabyGameId(req: Request, res: Response) {
   }
 }
 
-// A sua função 'getGamesData' era idêntica a 'GetAllGamesData',
-// então mantive 'GetAllGamesData' e a 'GetGameDatabyGameId'
+export async function CreateGame(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { title, genre, description } = req.body;
+    const newGame = await createGame({ title, genre, description });
+    res.status(201).json({ message: "Jogo cadastrado com sucesso", content: newGame });
+  } catch (error) {
+    next(error);
+  }
+}

@@ -2,12 +2,23 @@ import { Router } from "express";
 import {
   GetGameDatabyGameId,
   GetAllGamesData,
+  CreateGame,
 } from "../controllers/gameController";
+import { authMiddleware } from "../middleware/authMiddleware";
+import { adminAuthMiddleware } from "../middleware/adminAuthMiddleware";
+import { ValidateSchema } from "../middleware/validateSchema";
+import { createGameSchema } from "../validators/gameValidator";
 
 // Criar uma instância do Router
 const router = Router();
 
-// Rota para obter dados de um jogador específico
+router.post("/", 
+  authMiddleware, 
+  adminAuthMiddleware, 
+  ValidateSchema(createGameSchema), 
+  CreateGame
+);
+
 router.get("/", GetAllGamesData);
 router.get("/:gameId", GetGameDatabyGameId);
 
