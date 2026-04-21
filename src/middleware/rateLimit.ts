@@ -2,7 +2,7 @@ import rateLimit from 'express-rate-limit';
 
 export const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutos
-    max: 100, // Limitar a 100 requisições por IP a cada 15 minutos
+    max: 1000, // Limitar a 1000 requisições por IP a cada 15 minutos
     standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
     legacyHeaders: false, // Disable the `X-RateLimit-*` headers
     statusCode: 429, // Explicitly define Status HTTP 429
