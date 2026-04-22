@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { authMiddleware } from "../middleware/authMiddleware";
-import { GetAdminArcades, GetArcadeMetricsById } from "../controllers/dashboardController";
+import { GetAdminArcades, GetArcadeMetricsById, GetAdminMetrics, GetDashboardArcadeById } from "../controllers/dashboardController";
 
 const router = Router();
 
@@ -22,6 +22,17 @@ const router = Router();
  *         description: "Erro interno ao buscar arcades."
  */
 router.get("/admin/arcades", authMiddleware, GetAdminArcades);
+
+/**
+ * @swagger
+ * /dashboard/admin/metrics:
+ *   get:
+ *     summary: "Retorna o total de arcades e arcades ativos do admin autenticado"
+ *     tags: [Dashboard]
+ *     security:
+ *       - bearerAuth: []
+ */
+router.get("/admin/metrics", authMiddleware, GetAdminMetrics);
 
 /**
  * @swagger
@@ -52,5 +63,16 @@ router.get("/admin/arcades", authMiddleware, GetAdminArcades);
  *         description: "Erro interno."
  */
 router.get("/arcade/:id/metrics", authMiddleware, GetArcadeMetricsById);
+
+/**
+ * @swagger
+ * /dashboard/arcade/{id}:
+ *   get:
+ *     summary: "Retorna dados diretos de uma máquina específica"
+ *     tags: [Dashboard]
+ *     security:
+ *       - bearerAuth: []
+ */
+router.get("/arcade/:id", authMiddleware, GetDashboardArcadeById);
 
 export { router as dashboardRoutes };

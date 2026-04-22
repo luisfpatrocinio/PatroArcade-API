@@ -17,6 +17,7 @@ import {
 } from "./exceptions/loginExceptions";
 
 // Importar rotas:
+import userRoutes from "./routes/userRoutes";
 import { playerRoutes } from "./routes/playerRoutes";
 import { leaderboardRoutes } from "./routes/leaderboardRoutes";
 import { loginRoutes } from "./routes/loginRoutes";
@@ -65,21 +66,23 @@ app.use(passport.initialize());
 
 // --- CONFIGURAÇÃO DE ROTAS ---
 
+app.use("/users", userRoutes);
+app.use("/games", gamesRoutes);
+app.use("/dashboard", dashboardRoutes);
+app.use("/arcade", arcadeRoutes); // Mantemos aqui para GET /arcade/:id
+
 // --- ROTAS PÚBLICAS (Não precisam de token) ---
 app.use("/login", authLimiter, loginRoutes);
 app.use("/register", authLimiter, registerRoutes);
 app.use("/arcadeLogin", arcadeLoginRoutes);
 app.use("/leaderboard", leaderboardRoutes);
 app.use("/latestNews", newsRoutes);
-app.use("/games", gamesRoutes);
 app.use("/player", playerRoutes);
 
 // --- ROTAS PROTEGIDAS (Obrigatório ter um token JWT válido) ---
 app.use("/logout", logoutRoutes);
 app.use("/game", gameRoutes);
 app.use("/score", scoreRoutes);
-app.use("/arcade", arcadeRoutes);
-app.use("/dashboard", dashboardRoutes);
 
 // --- ROTAS DE AUTENTICAÇÃO ---
 app.use("/auth", authLimiter, authRoutes);
