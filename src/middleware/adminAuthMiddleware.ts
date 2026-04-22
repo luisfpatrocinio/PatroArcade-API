@@ -22,9 +22,9 @@ export const adminAuthMiddleware = (
   //    "Confie em mim, eu sei que a propriedade 'role' existe aqui".
   const userRole = (req.user as any)?.role;
 
-  // 2. Verificamos se a 'role' do usuário não é 'admin'.
-  if (userRole !== "admin") {
-    // 3. Se não for 'admin', bloqueamos a requisição com um status 403 Forbidden.
+  // 2. Verificamos se a 'role' do usuário não é 'admin' e nem 'superadmin'.
+  if (userRole !== "admin" && userRole !== "superadmin") {
+    // 3. Se não for nenhum dos dois, bloqueamos a requisição com um status 403 Forbidden.
     return res.status(403).json({
       type: "error",
       content:
