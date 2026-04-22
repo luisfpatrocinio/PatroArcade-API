@@ -10,7 +10,13 @@ export async function createGame(data: { title: string; genre: string; descripti
     throw new AppError("Já existe um jogo cadastrado com este título.", 400);
   }
 
-  const newGame = gameRepository.create(data);
+  // Injeta tags gerais e properties JSON vazias para evitar o erro NOT NULL
+  const newGame = gameRepository.create({
+    ...data,
+    tags: ["Geral"],
+    dataLabels: {}
+  });
+  
   await gameRepository.save(newGame);
   return newGame;
 }
