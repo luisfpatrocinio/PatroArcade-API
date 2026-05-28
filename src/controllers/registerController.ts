@@ -1,23 +1,17 @@
 import { Request, Response } from "express";
-import { validationResult } from "express-validator";
+
 import {
-  addUserToDatabase,
-  getUserDataByUserName,
-  getUserDataByEmail, // Importei a função correta para checar email
+  AddUserToDatabase,
+  GetUserDataByUserName,
+  GetUserDataByEmail, // Importei a função correta para checar email
 } from "../services/userService";
 import AppError from "../exceptions/appError";
-import { createPlayerForUser } from "../services/playerService";
+import { CreatePlayerForUser } from "../services/playerService";
 import bcrypt from "bcrypt"; // Importar bcrypt para o HASH
 
-export async function registerUser(req: Request, res: Response) {
+export async function RegisterUser(req: Request, res: Response) {
   // Adicionar verificação de erros de validação
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    // Se houver erros, retorna 400 com a lista de erros
-    return res
-      .status(400)
-      .json({ type: "registerFailed", content: errors.array() });
-  }
+
 
   console.log("Registrando usuário...");
   const { username, email, password, confirmPassword } = req.body;
@@ -31,7 +25,7 @@ export async function registerUser(req: Request, res: Response) {
     // 2. Verificar se o usuário já existe (agora com await)
     let userExists = null;
     try {
-      userExists = await getUserDataByUserName(username);
+      userExists = await GetUserDataByUserName(username);
     } catch (error) {
       userExists = null; // O serviço lança erro se não encontrar, então pegamos
     }
@@ -42,7 +36,7 @@ export async function registerUser(req: Request, res: Response) {
     // 3. Verificar se o email já existe (agora com await)
     let emailExists = null;
     try {
-      emailExists = await getUserDataByEmail(email);
+      emailExists = await GetUserDataByEmail(email);
     } catch (error) {
       emailExists = null;
     }
@@ -62,10 +56,10 @@ export async function registerUser(req: Request, res: Response) {
     };
 
     // 6. Adicionar o usuário ao banco (agora com await)
-    const newUserAdded = await addUserToDatabase(newUserPartial);
+    const newUserAdded = await AddUserToDatabase(newUserPartial);
 
     // 7. Criar um jogador para o usuário (agora com await)
-    await createPlayerForUser(newUserAdded);
+    await CreatePlayerForUser(newUserAdded);
 
     console.log(`Usuário ${username} registrado com sucesso.`);
     res.status(201).json({

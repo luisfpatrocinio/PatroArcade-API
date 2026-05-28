@@ -17,6 +17,7 @@ import {
 } from "./exceptions/loginExceptions";
 
 // Importar rotas:
+import userRoutes from "./routes/userRoutes";
 import { playerRoutes } from "./routes/playerRoutes";
 import { leaderboardRoutes } from "./routes/leaderboardRoutes";
 import { loginRoutes } from "./routes/loginRoutes";
@@ -25,25 +26,30 @@ import { arcadeLoginRoutes } from "./routes/arcadeLoginRoutes";
 import { newsRoutes } from "./routes/newsRoutes";
 import { debugRoutes } from "./routes/debugRoutes";
 import { gameRoutes } from "./routes/gameRoutes";
-import { saveRoutes } from "./routes/saveRoutes";
+import { scoreRoutes } from "./routes/scoreRoutes";
 import { gamesRoutes } from "./routes/gamesRoutes";
 import { registerRoutes } from "./routes/registerRoutes";
 import { arcadeRoutes } from "./routes/arcadeRoutes";
+import { dashboardRoutes } from "./routes/dashboardRoutes";
 
 // Importar Passport
 import { authRoutes } from "./routes/authRoutes";
 
 // Importações que não deviam estar aqui:
 import { clients } from "./main";
-import { isAlreadyConnected, isClientFull } from "./services/userService";
-import { clientExists } from "./services/clientService";
-import { authMiddleware } from "./middleware/authMiddleware";
+import { IsAlreadyConnected, IsClientFull } from "./services/userService";
+import { ClientExists } from "./services/clientService";
 
-// Importar o limiter
-import { limiter } from "./middleware/rateLimit";
+
+// Importar funções de rotas
+import { limiter, authLimiter } from "./middleware/rateLimit";
+import { setupSwagger } from "./swagger";
 
 // Criar a instância do Express
 const app: Application = express();
+
+// Set up Swagger UI
+setupSwagger(app);
 
 app.set("trust proxy", 1);
 
@@ -60,23 +66,26 @@ app.use(passport.initialize());
 
 // --- CONFIGURAÇÃO DE ROTAS ---
 
+app.use("/users", userRoutes);
+app.use("/games", gamesRoutes);
+app.use("/dashboard", dashboardRoutes);
+app.use("/arcade", arcadeRoutes); // Mantemos aqui para GET /arcade/:id
+
 // --- ROTAS PÚBLICAS (Não precisam de token) ---
-app.use("/login", loginRoutes);
-app.use("/register", registerRoutes);
+app.use("/login", authLimiter, loginRoutes);
+app.use("/register", authLimiter, registerRoutes);
 app.use("/arcadeLogin", arcadeLoginRoutes);
 app.use("/leaderboard", leaderboardRoutes);
 app.use("/latestNews", newsRoutes);
-app.use("/games", gamesRoutes);
 app.use("/player", playerRoutes);
 
 // --- ROTAS PROTEGIDAS (Obrigatório ter um token JWT válido) ---
 app.use("/logout", logoutRoutes);
 app.use("/game", gameRoutes);
-app.use("/save", authMiddleware, saveRoutes);
-app.use("/arcade", arcadeRoutes);
+app.use("/score", scoreRoutes);
 
 // --- ROTAS DE AUTENTICAÇÃO ---
-app.use("/auth", authRoutes);
+app.use("/auth", authLimiter, authRoutes);
 
 // Rota de debug (apenas em ambiente de desenvolvimento)
 app.use("/debug", debugRoutes);
@@ -84,22 +93,22 @@ app.use("/debug", debugRoutes);
 // TODO: Configurar sessões
 
 // Função para conectar o jogador num fliperama específico
-export function connectPlayer(userId: number, clientId: number): void {
-  if (!clientExists(clientId)) {
+export function ConnectPlayer(userId: number, clientId: number): void {
+  if (!ClientExists(clientId)) {
     throw new ClientNotFoundException();
   }
 
-  if (isAlreadyConnected(userId)) {
+  if (IsAlreadyConnected(userId)) {
     throw new AlreadyConnectedException();
   }
 
-  if (isClientFull(clientId)) {
+  if (IsClientFull(clientId)) {
     throw new ClientFullException();
   }
 }
 
 // Função para desconectar o jogador
-export function disconnectPlayer(playerId: number): void {
+export function DisconnectPlayer(playerId: number): void {
   clients.forEach((client) => {
     // Remover o jogador da lista de players do cliente.
     console.log(client.players);
@@ -112,7 +121,7 @@ export function disconnectPlayer(playerId: number): void {
   });
 }
 
-export function getConnectedPlayerId(): string | null {
+export function GetConnectedPlayerId(): string | null {
   return "a";
   //   return connectedPlayerId;
 }

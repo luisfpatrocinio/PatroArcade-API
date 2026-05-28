@@ -18,8 +18,8 @@ export class User {
   @Column({ nullable: true, unique: true }) // ID do Google
   googleId: string;
 
-  @Column()
-  role: "admin" | "player";
+  @Column({ type: "varchar" })
+  role: "admin" | "player" | "superadmin";
 
   // Novo campo para AdminUser
   @Column("simple-array", { nullable: true })

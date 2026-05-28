@@ -1,17 +1,17 @@
 import { AppDataSource } from "../data-source";
 import { Player } from "../entities/Player";
-import { SaveData } from "../entities/SaveData";
+import { Score } from "../entities/Score";
 import { User } from "../entities/User";
 import { PlayerNotFoundError } from "../exceptions/appError";
 
 // Repositórios
 const playerRepository = AppDataSource.getRepository(Player);
-const saveDataRepository = AppDataSource.getRepository(SaveData);
+const scoreRepository = AppDataSource.getRepository(Score);
 
 /**
  * Retorna os dados de um jogador pelo NOME.
  */
-export async function getPlayerByName(name: string): Promise<Player | null> {
+export async function GetPlayerByName(name: string): Promise<Player | null> {
   return playerRepository.findOne({ where: { name } });
 }
 
@@ -19,7 +19,7 @@ export async function getPlayerByName(name: string): Promise<Player | null> {
  * Retorna os dados de um jogador pelo ID DO USUÁRIO.
  * Esta é a principal forma de encontrar um jogador (ex: login, rota /me).
  */
-export async function getPlayerByUserId(userId: number): Promise<Player> {
+export async function GetPlayerByUserId(userId: number): Promise<Player> {
   const player = await playerRepository.findOne({
     where: { user: { id: userId } }, // Busca pela ID da relação User
   });
@@ -33,7 +33,7 @@ export async function getPlayerByUserId(userId: number): Promise<Player> {
  * Retorna os dados de um jogador pelo ID DO JOGADOR (chave primária).
  * Útil para a rota pública /player/:playerId
  */
-export async function getPlayerByPlayerId(playerId: number): Promise<Player> {
+export async function GetPlayerByPlayerId(playerId: number): Promise<Player> {
   const player = await playerRepository.findOne({
     where: { id: playerId },
   });
@@ -47,7 +47,7 @@ export async function getPlayerByPlayerId(playerId: number): Promise<Player> {
  * Cria um novo Player e o associa a um User.
  * Esta função é chamada no registro de usuário.
  */
-export async function createPlayerForUser(user: User): Promise<Player> {
+export async function CreatePlayerForUser(user: User): Promise<Player> {
   console.log(`Criando perfil de jogador para ${user.username}...`);
   const newPlayer = new Player();
   newPlayer.name = user.username;
@@ -59,20 +59,18 @@ export async function createPlayerForUser(user: User): Promise<Player> {
 }
 
 /**
- * Obtém todos os saves de um jogador, com base no ID DO JOGADOR (chave primária).
+ * Obtém todos os scores de um jogador.
  */
-export async function obtainPlayerSaves(playerId: number): Promise<SaveData[]> {
-  // Primeiro, verifica se o jogador existe
+export async function ObtainPlayerScores(playerId: number): Promise<Score[]> {
   const player = await playerRepository.findOneBy({ id: playerId });
   if (!player) {
     throw new PlayerNotFoundError();
   }
 
-  // Se existe, busca os saves relacionados a ele
-  return saveDataRepository.find({
+  return scoreRepository.find({
     where: { player: { id: playerId } },
     relations: {
-      game: true, // Traz as informações do Jogo junto com o Save
+      game: true, 
     },
   });
 }
@@ -81,7 +79,7 @@ export async function obtainPlayerSaves(playerId: number): Promise<SaveData[]> {
  * Atualiza a pontuação total de um jogador com base nos seus saves.
  * Recebe o ID DO JOGADOR (chave primária).
  */
-export async function updatePlayerTotalScore(
+export async function UpdatePlayerTotalScore(
   playerId: number
 ): Promise<Player> {
   console.log(`[updatePlayerScore] acionado para Player ID: ${playerId}`);
@@ -91,14 +89,11 @@ export async function updatePlayerTotalScore(
     throw new PlayerNotFoundError();
   }
 
-  const saves = await obtainPlayerSaves(playerId);
+  const scores = await ObtainPlayerScores(playerId);
   let totalScore = 0;
 
-  saves.forEach((save) => {
-    // save.data é o JSON { highestScore: 500, totalScore: 1100, ... }
-    if (save.data && save.data.totalScore) {
-      totalScore += save.data.totalScore;
-    }
+  scores.forEach((s) => {
+    totalScore += s.score;
   });
 
   player.totalScore = totalScore;
@@ -108,9 +103,9 @@ export async function updatePlayerTotalScore(
 /**
  * Retorna todos os jogadores do banco de dados. (Rota de Admin)
  */
-export async function getAllPlayers(): Promise<Player[]> {
+export async function GetAllPlayers(): Promise<Player[]> {
   return playerRepository.find();
 }
 
 // As funções antigas 'generateNewPlayer' e 'addPlayerToDatabase'
-// foram substituídas pela 'createPlayerForUser' que faz o trabalho completo.
+// foram substituídas pela 'CreatePlayerForUser' que faz o trabalho completo.

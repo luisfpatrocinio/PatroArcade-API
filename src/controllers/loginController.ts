@@ -1,22 +1,22 @@
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import {
-  checkCredentials,
-  getUserDataByUserName,
-  userHasPlayer,
+  CheckCredentials,
+  GetUserDataByUserName,
+  UserHasPlayer,
 } from "../services/userService";
-import { connectPlayer } from "../app";
-import { getPlayerByUserId } from "../services/playerService";
+import { ConnectPlayer } from "../app";
+import { GetPlayerByUserId } from "../services/playerService";
 import AppError from "../exceptions/appError";
 import multer from "multer";
 import {
-  addPlayerToClient,
-  sendWebSocketMessage,
+  AddPlayerToClient,
+  SendWebSocketMessage,
 } from "../services/clientService";
 
 const upload = multer();
 
-export const tryToLogin = [
+export const TryToLogin = [
   upload.none(),
   async (req: Request, res: Response) => {
     const username = req.body.username;
@@ -41,19 +41,19 @@ export const tryToLogin = [
     }
 
     try {
-      const credentialsAreValid = await checkCredentials(username, password);
+      const credentialsAreValid = await CheckCredentials(username, password);
 
       if (credentialsAreValid) {
         // 1. (await) Buscar dados do usuário
-        const userData = await getUserDataByUserName(username);
+        const userData = await GetUserDataByUserName(username);
         const userId = userData.id;
 
         // Conexão com o Cliente Websocket (síncrono, pois mexe com o Map 'clients')
-        connectPlayer(userId, clientId);
-        addPlayerToClient(clientId, userId);
+        ConnectPlayer(userId, clientId);
+        AddPlayerToClient(clientId, userId);
 
         // 2. (await) Buscar dados do jogador
-        const playerData = await getPlayerByUserId(userId);
+        const playerData = await GetPlayerByUserId(userId);
 
         // Criar o payload do Token JWT
         const payload = {
@@ -72,15 +72,15 @@ export const tryToLogin = [
           token: token,
         };
 
-        sendWebSocketMessage(clientId, "playerJoined", loginContent);
+        SendWebSocketMessage(clientId, "playerJoined", loginContent);
         console.log(
           `[LoginController] Player ${username} conectado no cliente ${clientId}.`
         );
 
         // 4. (await) Checar se o usuário tem jogador
-        // (Note que a função `getPlayerByUserId` acima já faria isso,
+        // (Note que a função `GetPlayerByUserId` acima já faria isso,
         // mas é bom manter a verificação separada caso o login crie o player)
-        if (!(await userHasPlayer(userId))) {
+        if (!(await UserHasPlayer(userId))) {
           // Lógica para caso o usuário exista mas o player não.
           // (No nosso caso, o registerController já cuida disso)
         }
@@ -111,3 +111,73 @@ export const tryToLogin = [
     }
   },
 ];
+
+export const LoginDev = async (req: Request, res: Response) => {
+  if (process.env.NODE_ENV === "production") {
+    return res.status(403).json({
+      type: "forbidden",
+      content: "Rota desabilitada em produção.",
+    });
+  }
+
+  const username = req.body.username;
+  const password = req.body.password;
+
+  if (!username || !password) {
+    return res.status(400).json({
+      type: "loginFailed",
+      content: "Dados de login inválidos.",
+    });
+  }
+
+  if (!process.env.JWT_SECRET) {
+    return res.status(500).json({
+      type: "loginFailed",
+      content: "Erro de configuração no servidor.",
+    });
+  }
+
+  try {
+    const credentialsAreValid = await CheckCredentials(username, password);
+
+    if (!credentialsAreValid) {
+      return res.status(401).json({
+        type: "loginFailed",
+        content: "Credenciais inválidas.",
+      });
+    }
+
+    const userData = await GetUserDataByUserName(username);
+    const userId = userData.id;
+
+    // Ignoramos completamente conexões Websocket e clientIds
+
+    const playerData = await GetPlayerByUserId(userId);
+
+    const payload = {
+      userId: userData.id,
+      username: userData.username,
+      role: userData.role,
+      playerId: playerData.id,
+    };
+
+    const token = jwt.sign(payload, process.env.JWT_SECRET, {
+      expiresIn: "8h",
+    });
+
+    res.status(200).json({
+      type: "loginSuccess",
+      content: {
+        player: playerData,
+        token: token,
+      },
+    });
+  } catch (error: any) {
+    console.error(`[LoginDev] ERROR: ${error.message}`);
+    res.status(500).json({
+      type: "loginFailed",
+      content: error.message || "Erro interno no servidor.",
+    });
+  }
+};
+

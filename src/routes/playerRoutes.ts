@@ -1,9 +1,9 @@
 import { Router } from "express";
 import {
-  getAllPlayersData,
-  getPlayerAllSaves,
-  getPlayerData,
-  getMyPlayerData,
+  GetAllPlayersData,
+  GetPlayerAllScores,
+  GetPlayerData,
+  GetMyPlayerData,
 } from "../controllers/playerController";
 import { authMiddleware } from "../middleware/authMiddleware";
 
@@ -11,14 +11,14 @@ const router = Router();
 
 // Public routes
 // router.post("/create", createNewPlayer); <-- ROTA REMOVIDA
-router.get("/", getAllPlayersData);
+router.get("/", GetAllPlayersData);
 
 // Player protected routes
-router.get("/me", authMiddleware, getMyPlayerData);
-router.get("/:playerId", getPlayerData); // Esta é pública agora
-router.get("/me/saves", authMiddleware, getPlayerAllSaves);
+router.get("/me", authMiddleware, GetMyPlayerData);
+router.get("/:playerId", GetPlayerData); // Esta é pública agora
+router.get("/me/scores", authMiddleware, GetPlayerAllScores);
 
 // Public Route
-router.get("/:playerId/saves", getPlayerAllSaves);
+router.get("/:playerId/scores", GetPlayerAllScores);
 
 export { router as playerRoutes };

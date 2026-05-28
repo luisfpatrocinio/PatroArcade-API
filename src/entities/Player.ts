@@ -7,7 +7,7 @@ import {
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { User } from "./User";
-import { SaveData } from "./SaveData";
+import { Score } from "./Score";
 
 @Entity()
 export class Player {
@@ -43,7 +43,7 @@ export class Player {
   @JoinColumn() // Isso cria a coluna 'userId' nesta tabela
   user: User;
 
-  // Relação: Um Jogador (Player) pode ter muitos Saves (SaveData)
-  @OneToMany(() => SaveData, (save) => save.player)
-  saves: SaveData[];
+  // Relação: Um Jogador (Player) pode ter muitos Scores
+  @OneToMany(() => Score, (score) => score.player)
+  scores: Score[];
 }

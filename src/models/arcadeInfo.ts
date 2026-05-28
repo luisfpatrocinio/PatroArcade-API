@@ -12,6 +12,6 @@ export const arcadeDatabase: ArcadeInfo[] = [
   },
 ];
 
-export function createArcade(arcade: ArcadeInfo): void {
+export function CreateArcade(arcade: ArcadeInfo): void {
   arcadeDatabase.push(arcade);
 }

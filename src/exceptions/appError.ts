@@ -25,4 +25,10 @@ export class PlayerHasNoSavesError extends AppError {
   }
 }
 
+export class AntiCheatError extends AppError {
+  constructor(message: string = "Score excedeu o máximo de pontos logicamente permissivos para a duração baseada na sessão.") {
+    super(message, 400);
+  }
+}
+
 export default AppError;

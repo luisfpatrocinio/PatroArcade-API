@@ -10,14 +10,14 @@ import { User } from "./entities/User";
 import { Player } from "./entities/Player";
 import { Game } from "./entities/Game";
 import { Arcade } from "./entities/Arcade";
-import { SaveData } from "./entities/SaveData";
+
 
 // Importar os DADOS ANTIGOS
 import { usersDatabase } from "./models/userModel";
 import { playerDatabase } from "./models/playerDatabase";
 import { gameDatabase } from "./models/gameInfo";
 import { arcadeDatabase } from "./models/arcadeInfo";
-import { saveDatabase } from "./models/saveData";
+
 
 // Carregar variáveis de ambiente
 dotenv.config();
@@ -47,7 +47,7 @@ wss.on("connection", (ws) => {
   console.log("Cliente WebSocket conectado:", clientId);
   ws.send(
     JSON.stringify({
-      type: "saudacoes", // TODO: Dar utilidade para isso.
+      type: "saudacoes",
       content: { clientId },
     })
   );
@@ -59,56 +59,80 @@ wss.on("connection", (ws) => {
       any
     >;
 
-    manageGameReceivedData(ws, data);
+    ManageGameReceivedData(ws, data);
   });
 
   ws.on("close", () => {
     console.log("Cliente desconectado:", clientId);
-    // Remover o cliente do mapa de clientes
+    const client = clients.get(clientId);
+    // Atualizar status do arcade no banco para 'offline'
+    if (client && client.id > 0) {
+      const arcadeRepository = AppDataSource.getRepository(Arcade);
+      arcadeRepository.update(client.id, { status: "offline" }).catch((err) =>
+        console.error(`[WS] Erro ao atualizar status para offline: ${err.message}`)
+      );
+    }
     clients.delete(clientId);
   });
 });
 
 // Inicializar conexão com o banco de dados
-AppDataSource.initialize()
-  .then(async () => {
-    console.log("Conectando ao Banco de Dados...");
+if (process.env.NODE_ENV !== "test") {
+  AppDataSource.initialize()
+    .then(async () => {
+      console.log("Conectando ao Banco de Dados...");
 
-    await seedDatabase();
+      await SeedDatabase();
 
-    server.listen(PORT, () => {
-      console.clear();
-      console.log(`PatroTCC rodando: ${PORT}`);
+      server.listen(PORT, () => {
+        console.clear();
+        console.log(`PatroTCC rodando: ${PORT}`);
+      });
+    })
+    .catch((err) => {
+      console.error("Erro ao conectar ao banco de dados: ", err);
     });
-  })
-  .catch((err) => {
-    console.error("Erro ao conectar ao banco de dados: ", err);
-  });
+}
 
-function manageGameReceivedData(ws: any, data: Map<string, any>) {
+function ManageGameReceivedData(ws: any, data: any) {
   console.log(data);
 
-  const dataMap = new Map(Object.entries(data));
-  const type = dataMap.get("type");
-  const content = new Map(Object.entries(dataMap.get("content")));
+  const type = data.type;
+  const content = data.content || {};
 
   switch (type) {
     case "updateClientId":
-      var clientId = content.get("clientId");
-      var client = getThisClient(ws);
-      if (client !== -1) {
-        clients.get(client).id = clientId;
+      // Suporte para payloads aninhados (legado) ou flat (novo)
+      // Suporte para chaves 'clientId' ou 'arcadeId'
+      const clientId = content.clientId || content.arcadeId || data.clientId || data.arcadeId;
+      const gameId = content.gameId || data.gameId;
+
+      const clientTempId = GetThisClient(ws);
+      if (clientTempId !== -1) {
+        clients.get(clientTempId).id = clientId;
       }
-      console.log(`[UPDATE CLIENT ID]: ${client} atualizado para ${clientId}.`);
+      console.log(`[UPDATE CLIENT ID]: TempID ${clientTempId} mapeado para ArcadeID ${clientId} (Game: ${gameId}).`);
+
+      // Atualizar status do arcade no banco para 'online'
+      const arcadeNumericId = Number(clientId);
+      if (arcadeNumericId > 0) {
+        const arcadeRepository = AppDataSource.getRepository(Arcade);
+        arcadeRepository.update(arcadeNumericId, {
+          status: "online",
+          lastBootTime: new Date(),
+          currentGameId: gameId ? Number(gameId) : null,
+        }).catch((err) =>
+          console.error(`[WS] Erro ao atualizar status para online: ${err.message}`)
+        );
+      }
       break;
     case "disconnectPlayers":
-      var clientId = content.get("clientId");
-      var client = getThisClient(ws);
-      if (client !== -1) {
-        clients.get(client).players = [];
+      const clientTempIdDisc = GetThisClient(ws);
+      if (clientTempIdDisc !== -1) {
+        clients.get(clientTempIdDisc).players = [];
       }
       console.log(
-        `[DISCONNECT PLAYERS]: Jogadores do cliente ${client} desconectados.`
+        `[DISCONNECT PLAYERS]: Jogadores do cliente TempID ${clientTempIdDisc} desconectados.`
       );
 
       break;
@@ -117,7 +141,7 @@ function manageGameReceivedData(ws: any, data: Map<string, any>) {
   }
 }
 
-function getThisClient(ws: any) {
+function GetThisClient(ws: any) {
   for (const [key, value] of clients.entries()) {
     if (value.ws === ws) {
       return key;
@@ -127,10 +151,25 @@ function getThisClient(ws: any) {
 }
 
 /**
+ * Infere o arcadeId de um jogador usando o estado in-memory dos WebSockets.
+ * @param userId O userId do jogador (conforme armazenado no Map de clientes).
+ * @returns O arcadeId (client.id) onde o jogador está conectado, ou null se não encontrado.
+ */
+export function GetArcadeIdByPlayerId(userId: number): number | null {
+  for (const [, client] of clients.entries()) {
+    if (client.players.includes(userId) && client.id > 0) {
+      return client.id;
+    }
+  }
+  return null;
+}
+
+
+/**
  * Popula o banco de dados com os dados iniciais dos arquivos src/models/
  * se o banco de dados estiver vazio.
  */
-async function seedDatabase() {
+async function SeedDatabase() {
   console.log("Verificando se o banco precisa ser populado...");
 
   // Obter os repositórios
@@ -138,7 +177,7 @@ async function seedDatabase() {
   const playerRepository = AppDataSource.getRepository(Player);
   const gameRepository = AppDataSource.getRepository(Game);
   const arcadeRepository = AppDataSource.getRepository(Arcade);
-  const saveRepository = AppDataSource.getRepository(SaveData);
+  // legacy saves removed
 
   // 1. Verificar se já foi populado (ex: checando se o admin "patrocinio" existe)
   const adminUser = await userRepository.findOneBy({ username: "patrocinio" });
@@ -189,37 +228,6 @@ async function seedDatabase() {
   }
   console.log("Usuários e Jogadores salvos.");
 
-  // 5. Salvar Saves (ligando-os aos novos Players e Games)
-  const allNewPlayers = await playerRepository.find();
-  const allNewGames = await gameRepository.find();
-
-  for (const oldSave of saveDatabase) {
-    const newSave = new SaveData();
-    newSave.richPresenceText = oldSave.richPresenceText;
-    newSave.lastPlayed = oldSave.lastPlayed;
-    newSave.data = oldSave.data;
-
-    // Encontrar o Player correspondente
-    const oldPlayer = playerDatabase.find((p) => p.id === oldSave.playerId);
-
-    // Encontrar o Game correspondente
-    const oldGame = gameDatabase.find((g) => g.id === oldSave.gameId);
-
-    // A LINHA DO ERRO ESTÁ ABAIXO:
-    // Nós tentámos usar oldPlayer.name e oldGame.title sem verificar
-
-    // ADICIONE ESTA VERIFICAÇÃO:
-    if (oldPlayer && oldGame) {
-      const newPlayer = allNewPlayers.find((p) => p.name === oldPlayer.name);
-      const newGame = allNewGames.find((g) => g.title === oldGame.title);
-
-      if (newPlayer && newGame) {
-        newSave.player = newPlayer; // Ligar o Save ao Player
-        newSave.game = newGame; // Ligar o Save ao Game
-        await saveRepository.save(newSave);
-      }
-    }
-  }
-  console.log("Saves salvos.");
+  // Saves legados desativados.
   console.log("Banco de dados populado com sucesso!");
 }

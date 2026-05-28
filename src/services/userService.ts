@@ -3,7 +3,7 @@ import { clients } from "../main";
 import { AppDataSource } from "../data-source"; 
 import { User } from "../entities/User"; 
 import { Player } from "../entities/Player"; 
-import { getClientById } from "./clientService";
+import { GetClientById } from "./clientService";
 import bcrypt from "bcrypt";
 
 // Criar "Repositórios" (nossa porta de entrada para as tabelas)
@@ -11,7 +11,7 @@ const userRepository = AppDataSource.getRepository(User);
 const playerRepository = AppDataSource.getRepository(Player);
 
 // Função que verifica se as credenciais são válidas
-export async function checkCredentials(
+export async function CheckCredentials(
   username: string,
   passwordFromReq: string
 ): Promise<boolean> {
@@ -35,7 +35,7 @@ export async function checkCredentials(
   }
 }
 
-export async function getUserDataByUserName(username: string): Promise<User> {
+export async function GetUserDataByUserName(username: string): Promise<User> {
   const user = await userRepository.findOne({
     where: { username: username },
   });
@@ -46,7 +46,7 @@ export async function getUserDataByUserName(username: string): Promise<User> {
   return user;
 }
 
-export async function getUserDataByEmail(email: string): Promise<User> {
+export async function GetUserDataByEmail(email: string): Promise<User> {
   const user = await userRepository.findOne({ where: { email: email } });
   if (!user) {
     throw new Error(`User com email ${email} não encontrado`);
@@ -54,7 +54,7 @@ export async function getUserDataByEmail(email: string): Promise<User> {
   return user;
 }
 
-export async function addUserToDatabase(
+export async function AddUserToDatabase(
   user: Partial<User> // O user que vem do controller (username, email, password HASHED)
 ): Promise<User> {
   console.log("Adicionando usuário ao banco de dados...");
@@ -88,29 +88,29 @@ export async function addUserToDatabase(
 }
 
 // Esta função não mexe com o banco de dados, então pode ficar síncrona
-export function isAlreadyConnected(userId: number): boolean {
-  let _connected = false;
+export function IsAlreadyConnected(userId: number): boolean {
+  let connected = false;
   // Percorre todos os clientes
   clients.forEach((client) => {
     // Confere se há um player com o mesmo id do userId
     if (client.players.includes(userId)) {
-      _connected = true;
+      connected = true;
     }
   });
-  return _connected;
+  return connected;
 }
 
 // Esta função também não mexe com o banco de dados
-export function isClientFull(clientId: number): boolean {
-  var _client = getClientById(clientId);
-  if (!_client) {
+export function IsClientFull(clientId: number): boolean {
+  var client = GetClientById(clientId);
+  if (!client) {
     throw new ClientFullException();
   }
 
-  return _client.players.length >= 2;
+  return client.players.length >= 2;
 }
 
-export async function userHasPlayer(userId: number): Promise<boolean> {
+export async function UserHasPlayer(userId: number): Promise<boolean> {
   // 8. Agora consultamos a tabela Player pela relação com o User
   const player = await playerRepository.findOne({
     where: {

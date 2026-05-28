@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 
-export function getLatestNews(req: Request, res: Response) {
+export function GetLatestNews(req: Request, res: Response) {
   // Retorna um json com informação aleatória para fim de teste:
   const news = [
     {

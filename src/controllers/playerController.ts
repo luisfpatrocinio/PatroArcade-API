@@ -2,30 +2,30 @@
 
 import { Request, Response } from "express";
 import {
-  getPlayerByUserId,
-  getPlayerByPlayerId, // Nova função que busca pelo ID do Player
-  obtainPlayerSaves,
-  getAllPlayers, // Nova função
+  GetPlayerByUserId,
+  GetPlayerByPlayerId, // Nova função que busca pelo ID do Player
+  ObtainPlayerScores,
+  GetAllPlayers, // Nova função
 } from "../services/playerService";
 import AppError, { PlayerNotFoundError } from "../exceptions/appError"; // Importar PlayerNotFoundError
 
 // Get the player data for the currently authenticated user
-export const getMyPlayerData = async (req: Request, res: Response) => {
-  console.log("[getMyPlayerData] Valor de req.user:", req.user);
+export const GetMyPlayerData = async (req: Request, res: Response) => {
+  console.log("[GetMyPlayerData] Valor de req.user:", req.user);
 
   // 1. O authMiddleware já garantiu que req.user existe.
   //    Usamos o userId do token JWT.
   const userId = req.user!.userId;
   console.log(
-    `[getMyPlayerData] Buscando dados para o usuário autenticado: ID ${userId}`
+    `[GetMyPlayerData] Buscando dados para o usuário autenticado: ID ${userId}`
   );
 
   try {
     // 2. Use o serviço (agora async) para encontrar o player associado ao userId
-    const player = await getPlayerByUserId(userId);
+    const player = await GetPlayerByUserId(userId);
 
     // 3. Retorna o jogador
-    console.log(`[getMyPlayerData] Retornando dados do jogador: ${player.name}`);
+    console.log(`[GetMyPlayerData] Retornando dados do jogador: ${player.name}`);
     return res.status(200).json({
       type: "playerData",
       content: player,
@@ -34,7 +34,7 @@ export const getMyPlayerData = async (req: Request, res: Response) => {
     // 4. Se o serviço lançar PlayerNotFoundError
     if (error instanceof PlayerNotFoundError) {
       console.log(
-        `[getMyPlayerData] Erro: Player não encontrado para user ID: ${userId}`
+        `[GetMyPlayerData] Erro: Player não encontrado para user ID: ${userId}`
       );
       return res.status(404).json({
         type: "playerDataFailed",
@@ -42,7 +42,7 @@ export const getMyPlayerData = async (req: Request, res: Response) => {
       });
     }
     // Outros erros
-    console.error("[getMyPlayerData] Erro inesperado:", error);
+    console.error("[GetMyPlayerData] Erro inesperado:", error);
     return res
       .status(500)
       .json({ type: "error", content: "Erro interno do servidor" });
@@ -50,19 +50,19 @@ export const getMyPlayerData = async (req: Request, res: Response) => {
 };
 
 // Get data for a specific player by playerId parameter (ROTA PÚBLICA)
-export const getPlayerData = async (req: Request, res: Response) => {
+export const GetPlayerData = async (req: Request, res: Response) => {
   try {
     // 1. Parse o playerId dos parâmetros da rota
     const playerId = Number(req.params.playerId);
     if (isNaN(playerId)) {
       return res.status(400).json({ type: "playerDataFailed", content: "ID de jogador inválido."})
     }
-    console.log("[getPlayerData] Buscando dados para o player ID: ", playerId);
+    console.log("[GetPlayerData] Buscando dados para o player ID: ", playerId);
 
-    // 2. Use o novo serviço 'getPlayerByPlayerId' (agora async)
-    const player = await getPlayerByPlayerId(playerId);
+    // 2. Use o novo serviço 'GetPlayerByPlayerId' (agora async)
+    const player = await GetPlayerByPlayerId(playerId);
 
-    console.log(`[getPlayerData] Retornando dados para o jogador: ${player.name}`);
+    console.log(`[GetPlayerData] Retornando dados para o jogador: ${player.name}`);
     return res.status(200).json({
       type: "playerData",
       content: player,
@@ -70,14 +70,14 @@ export const getPlayerData = async (req: Request, res: Response) => {
 
   } catch (error) {
     if (error instanceof PlayerNotFoundError) {
-      console.log(`[getPlayerData] Erro: Player não encontrado.`);
+      console.log(`[GetPlayerData] Erro: Player não encontrado.`);
       return res.status(404).json({
         type: "playerDataFailed",
         content: `Player ID ${req.params.playerId} não encontrado`,
       });
     }
     // Handle unexpected errors
-    console.error("[getPlayerData] Erro inesperado: ", error);
+    console.error("[GetPlayerData] Erro inesperado: ", error);
     return res.status(500).json({
       type: "serverError",
       content: "Erro inesperado ao processar a requisição.",
@@ -85,8 +85,8 @@ export const getPlayerData = async (req: Request, res: Response) => {
   }
 };
 
-// Obter todos os saves de um jogador
-export const getPlayerAllSaves = async (req: Request, res: Response) => {
+// Obter todos os scores de um jogador
+export const GetPlayerAllScores = async (req: Request, res: Response) => {
   try {
     // 1. Lógica inteligente para pegar o ID
     // Lembre-se que adicionamos 'playerId' ao token!
@@ -95,7 +95,7 @@ export const getPlayerAllSaves = async (req: Request, res: Response) => {
       : req.user?.playerId; // <-- MUITO MAIS FÁCIL AGORA!
 
     console.log(
-      `[getPlayerAllSaves] Solicitando saves para o Player ID: ${desiredPlayerId}`
+      `[GetPlayerAllScores] Solicitando scores para o Player ID: ${desiredPlayerId}`
     );
 
     if (!desiredPlayerId || isNaN(desiredPlayerId)) {
@@ -106,24 +106,24 @@ export const getPlayerAllSaves = async (req: Request, res: Response) => {
     }
 
     // 2. Chamar o serviço (agora async)
-    const saves = await obtainPlayerSaves(desiredPlayerId);
+    const scores = await ObtainPlayerScores(desiredPlayerId);
 
     console.log(
-      `[getPlayerAllSaves] Fornecendo dados de save para o Player ID: ${desiredPlayerId}`
+      `[GetPlayerAllScores] Fornecendo dados de score para o Player ID: ${desiredPlayerId}`
     );
-    return res.status(200).json({ type: "playerSaves", content: saves });
+    return res.status(200).json({ type: "playerScores", content: scores });
 
   } catch (err: any) {
-    console.error("Erro ao obter dados de save: ", err.message);
+    console.error("Erro ao obter dados de score: ", err.message);
     if (err instanceof PlayerNotFoundError) {
        return res.status(err.statusCode).json({
-        type: "playerSavesFailed",
+        type: "playerScoresFailed",
         content: "Jogador não encontrado.",
       });
     }
     if (err instanceof AppError) {
       return res.status(err.statusCode).json({
-        type: "playerSavesFailed",
+        type: "playerScoresFailed",
         content: err.message,
       });
     }
@@ -132,10 +132,10 @@ export const getPlayerAllSaves = async (req: Request, res: Response) => {
 };
 
 // Rota para admin/pública ver todos os jogadores
-export const getAllPlayersData = async (req: Request, res: Response) => {
+export const GetAllPlayersData = async (req: Request, res: Response) => {
   console.log("Obtendo todos os dados de jogadores.");
   try {
-    const players = await getAllPlayers();
+    const players = await GetAllPlayers();
     return res.status(200).json({ type: "allPlayers", content: players });
   } catch (error) {
      console.error("Erro ao buscar todos os jogadores: ", error);
@@ -146,4 +146,4 @@ export const getAllPlayersData = async (req: Request, res: Response) => {
 
 // A rota 'createNewPlayer' foi removida
 // pois a criação de jogador agora é de responsabilidade
-// do 'registerController' através do 'createPlayerForUser'
+// do 'registerController' através do 'CreatePlayerForUser'
